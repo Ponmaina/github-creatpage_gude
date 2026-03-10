@@ -291,19 +291,155 @@ function StepList({ steps }) {
   );
 }
 
+function VersionGuide() {
+  const [openItem, setOpenItem] = useState(null);
+  const toggle = (key) => setOpenItem(prev => prev === key ? null : key);
+
+  const sections = [
+    {
+      key: "auto", icon: "🔄", title: "GitHubは自動でバージョン管理してくれる",
+      color: "#6366f1", bg: "#eef2ff", border: "#c7d2fe",
+      content: "ファイルをアップロード・更新するたびに「Commit」として履歴が自動保存されます。特別な設定は不要で、何もしなくても過去のすべてのバージョンがGitHub上に残り続けます。",
+      extra: [
+        "1回目のアップロード → Commit①（初回公開）",
+        "2回目の更新　　　　→ Commit②（〇〇を修正）",
+        "3回目の更新　　　　→ Commit③（△△を追加）",
+        "いつでも過去のバージョンに戻せる ✅",
+      ]
+    },
+    {
+      key: "message", icon: "💬", title: "Commit messageにメモを残すと便利",
+      color: "#10b981", bg: "#f0fdf4", border: "#bbf7d0",
+      content: "アップロード・更新時のポップアップ「Commit message」欄にメモを入力しておくと、後から履歴を見たときにどの変更かすぐわかります。",
+      extra: [
+        "例：「初回公開」",
+        "例：「ボタンの色を変更」",
+        "例：「レイアウト修正 2024/03」",
+        "例：「テキスト誤字修正」",
+      ]
+    },
+    {
+      key: "history", icon: "📋", title: "履歴（過去バージョン）の確認方法",
+      color: "#0ea5e9", bg: "#f0f9ff", border: "#bae6fd",
+      content: "いつ・どんな変更をしたかをGitHub上で一覧確認できます。",
+      extra: [
+        "【Codeタブ】上部タブ一番左「Code」をクリック",
+        "【ファイルをクリック】ファイル一覧から「index.html」をクリック",
+        "【Historyボタン】画面右上の「History」をクリック",
+        "→ Commitの一覧が表示される。クリックするとその時点の中身が見られる",
+      ]
+    },
+    {
+      key: "revert", icon: "⏪", title: "過去のバージョンに戻す方法",
+      color: "#f59e0b", bg: "#fffbeb", border: "#fde68a",
+      content: "間違えて更新してしまった場合など、過去のバージョンに戻したいときの手順です。",
+      extra: [
+        "【Codeタブ】→「index.html」をクリック → 右上「History」をクリック",
+        "【戻したいCommitをクリック】一覧から戻したい時点のCommitをクリック",
+        "【Codeタブ（Raw）】画面右上「<> Code」→「Raw」ボタンをクリックしてHTMLの中身を全選択コピー",
+        "【新しいindex.htmlを作る】コピーした内容をテキストエディタに貼り付けて「index.html」として保存",
+        "【アップロード】「🔄 ページを更新する」タブの手順でアップロードして上書き",
+      ]
+    },
+    {
+      key: "tips", icon: "💡", title: "バージョン管理のコツ",
+      color: "#ec4899", bg: "#fdf2f8", border: "#fbcfe8",
+      content: "運用をスムーズにするためのおすすめの習慣です。",
+      extra: [
+        "更新前にCommit messageに日付と変更内容を書く習慣をつける",
+        "大きな変更の前に「変更前バックアップ」とメモしておくと安心",
+        "Historyは何件でも遡れるので、気軽にどんどん更新してOK",
+        "間違えてもいつでも戻せるので怖くない！",
+      ]
+    },
+  ];
+
+  return (
+    <div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+        {sections.map(sec => {
+          const isOpen = openItem === sec.key;
+          return (
+            <div key={sec.key}>
+              <div onClick={() => toggle(sec.key)} style={{
+                background: "#fff", borderRadius: 12,
+                border: "2px solid " + (isOpen ? sec.color : "#e2e8f0"),
+                padding: "12px 16px", cursor: "pointer", transition: "all 0.15s",
+                boxShadow: isOpen ? "0 0 0 3px " + sec.color + "22" : "none"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                    background: isOpen ? sec.color : sec.bg,
+                    color: isOpen ? "#fff" : sec.color,
+                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18
+                  }}>{sec.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: "bold", color: "#1e293b" }}>{sec.title}</div>
+                  </div>
+                  <div style={{ color: "#94a3b8", fontSize: 16, transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>▶</div>
+                </div>
+              </div>
+
+              {isOpen && (
+                <div style={{ background: sec.bg, border: "2px solid " + sec.color, borderTop: "none", borderRadius: "0 0 12px 12px", padding: 16, animation: "fadeIn 0.2s ease" }}>
+                  <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.7, marginBottom: 12 }}>{sec.content}</div>
+                  <div style={{ background: "#fff", border: "1px solid " + sec.border, borderRadius: 8, padding: "10px 14px" }}>
+                    {sec.extra.map((e, i) => (
+                      <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: i < sec.extra.length - 1 ? 6 : 0 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: "50%", flexShrink: 0, background: sec.color, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: "bold", marginTop: 1 }}>{i + 1}</div>
+                        <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.6, paddingTop: 2 }}>{e}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [mainTab, setMainTab] = useState("publish");
-  const isPublish = mainTab === "publish";
+
+  const tabs = [
+    { key: "publish", label: "🚀 初回公開", activeColor: "#1e293b" },
+    { key: "update", label: "🔄 ページを更新する", activeColor: "#0369a1" },
+    { key: "version", label: "🕓 バージョン確認", activeColor: "#6366f1" },
+  ];
+
+  const headerConfig = {
+    publish: {
+      bg: "linear-gradient(135deg,#1e293b 0%,#334155 100%)",
+      label: "DEPLOYMENT GUIDE", title: "HTMLファイル → GitHub Pages 公開手順",
+      sub: "よくあるつまずきポイント・Q&A付き",
+      badges: [{ label: "全7ステップ", icon: "📋" }, { label: "無料で公開可能", icon: "💰" }, { label: "Q&A付き", icon: "💬" }],
+    },
+    update: {
+      bg: "linear-gradient(135deg,#0369a1 0%,#0ea5e9 100%)",
+      label: "UPDATE GUIDE", title: "ページの更新手順",
+      sub: "公開済みのページを最新版に更新する",
+      badges: [{ label: "全4ステップ", icon: "📋" }, { label: "Settings変更不要", icon: "⚡" }, { label: "Q&A付き", icon: "💬" }],
+    },
+    version: {
+      bg: "linear-gradient(135deg,#4338ca 0%,#6366f1 100%)",
+      label: "VERSION GUIDE", title: "バージョン確認・管理方法",
+      sub: "GitHubは自動で履歴を保存。いつでも過去に戻せる",
+      badges: [{ label: "自動バージョン管理", icon: "🔄" }, { label: "履歴の確認方法", icon: "📋" }, { label: "過去に戻す方法", icon: "⏪" }],
+    },
+  };
+
+  const h = headerConfig[mainTab];
 
   return (
     <div style={{ fontFamily: "'Hiragino Sans','Yu Gothic','Meiryo',sans-serif", width: "100%", minHeight: "100vh", padding: 16, background: "#f8fafc" }}>
 
       {/* メインタブ */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 0 }}>
-        {[
-          { key: "publish", label: "🚀 初回公開", activeColor: "#1e293b" },
-          { key: "update", label: "🔄 ページを更新する", activeColor: "#0369a1" },
-        ].map(tab => (
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 0 }}>
+        {tabs.map(tab => (
           <button key={tab.key} onClick={() => setMainTab(tab.key)} style={{
             padding: "10px 22px", border: "2px solid",
             borderColor: mainTab === tab.key ? tab.activeColor : "#e2e8f0",
@@ -320,34 +456,20 @@ function App() {
       </div>
 
       {/* ヘッダー */}
-      <div style={{
-        background: isPublish
-          ? "linear-gradient(135deg,#1e293b 0%,#334155 100%)"
-          : "linear-gradient(135deg,#0369a1 0%,#0ea5e9 100%)",
-        borderRadius: isPublish ? "0 10px 10px 10px" : "0 10px 10px 10px",
-        padding: "20px 24px", marginBottom: 16, color: "#fff",
-        position: "relative", zIndex: 1,
-      }}>
-        <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 4, letterSpacing: "0.1em" }}>
-          {isPublish ? "DEPLOYMENT GUIDE" : "UPDATE GUIDE"}
-        </div>
-        <div style={{ fontSize: 22, fontWeight: "bold", marginBottom: 4 }}>
-          {isPublish ? "HTMLファイル → GitHub Pages 公開手順" : "ページの更新手順"}
-        </div>
-        <div style={{ fontSize: 12, opacity: 0.75 }}>
-          {isPublish ? "よくあるつまずきポイント・Q&A付き" : "公開済みのページを最新版に更新する"}
-        </div>
+      <div style={{ background: h.bg, borderRadius: "0 10px 10px 10px", padding: "20px 24px", marginBottom: 16, color: "#fff", position: "relative", zIndex: 1 }}>
+        <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 4, letterSpacing: "0.1em" }}>{h.label}</div>
+        <div style={{ fontSize: 22, fontWeight: "bold", marginBottom: 4 }}>{h.title}</div>
+        <div style={{ fontSize: 12, opacity: 0.75 }}>{h.sub}</div>
         <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {(isPublish
-            ? [{ label: "全7ステップ", icon: "📋" }, { label: "無料で公開可能", icon: "💰" }, { label: "Q&A付き", icon: "💬" }]
-            : [{ label: "全4ステップ", icon: "📋" }, { label: "Settings変更不要", icon: "⚡" }, { label: "Q&A付き", icon: "💬" }]
-          ).map(b => (
+          {h.badges.map(b => (
             <span key={b.label} style={{ background: "rgba(255,255,255,0.12)", borderRadius: 20, padding: "4px 12px", fontSize: 11 }}>{b.icon} {b.label}</span>
           ))}
         </div>
       </div>
 
-      <StepList steps={isPublish ? publishSteps : updateSteps} />
+      {mainTab === "publish" && <StepList steps={publishSteps} />}
+      {mainTab === "update" && <StepList steps={updateSteps} />}
+      {mainTab === "version" && <VersionGuide />}
 
       {/* まとめ */}
       <div style={{ background: "linear-gradient(135deg,#0f172a,#1e293b)", borderRadius: 12, padding: "16px 20px", color: "#fff" }}>
