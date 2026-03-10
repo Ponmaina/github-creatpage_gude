@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; }
     body { background: #f8fafc; font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
     ::-webkit-scrollbar { height: 4px; width: 4px; }
@@ -21,7 +22,7 @@
 <script type="text/babel">
 const { useState } = React;
 
-const steps = [
+const publishSteps = [
   {
     id: 1, phase: "準備", phaseColor: "#6366f1", phaseBg: "#eef2ff",
     title: "HTMLファイルをダウンロード", icon: "📄",
@@ -41,10 +42,10 @@ const steps = [
     title: "新しいリポジトリを作成", icon: "📁",
     desc: "マニュアルを置くための「フォルダ」を作る",
     details: [
-      "右上の「＋」→「New repository」をクリック",
-      "Repository name に「wp-manual」など入力",
-      "「Public」を選択（重要！Privateだと公開されない）",
-      "「Create repository」をクリック",
+      "【＋ボタン】画面右上のアイコン群の中にある「＋」ボタンをクリック → プルダウンで「New repository」を選択",
+      "【Repository nameテキストボックス】「Repository name」と書かれた入力欄に「wp-manual」など好きな名前を入力",
+      "【Publicラジオボタン】「Public」のラジオボタンをクリックして選択（重要！Privateだと公開されない）",
+      "【Create repositoryボタン】画面下の緑の「Create repository」ボタンをクリック",
     ],
     warns: ["「Public」を選ばないとGitHub Pagesが使えない（無料プランの場合）"],
     qa: [
@@ -53,64 +54,126 @@ const steps = [
     ],
   },
   {
-    id: 4, phase: "ファイルアップロード", phaseColor: "#10b981", phaseBg: "#f0fdf4",
-    title: "HTMLファイルをアップロード", icon: "⬆️",
-    desc: "作成したリポジトリにHTMLファイルを追加する",
+    id: 4, phase: "フォルダ作成", phaseColor: "#10b981", phaseBg: "#f0fdf4",
+    title: "ページ用のフォルダを作成", icon: "📂",
+    desc: "ページごとにフォルダを作る（フォルダ名がURLになる）",
     details: [
-      "リポジトリ画面の「Add file」→「Upload files」をクリック",
-      "「elementor-guide.html」をドラッグ＆ドロップ",
-      "画面下の「Commit changes」ボタンをクリック",
-    ],
-    warns: [], qa: [],
-  },
-  {
-    id: 5, phase: "ファイル名変更", phaseColor: "#f59e0b", phaseBg: "#fffbeb",
-    title: "ファイル名を index.html に変更", icon: "✏️",
-    desc: "GitHub Pagesはindex.htmlをトップページとして認識する",
-    details: [
-      "ファイル一覧から「elementor-guide.html」をクリック",
-      "右上の鉛筆アイコン（Edit）をクリック",
-      "画面上部のファイル名欄を「index.html」に書き換える",
-      "右上の「Commit changes...」ボタンをクリック",
-      "そのまま「Commit changes」を押す",
+      "【Codeタブ】上部タブの一番左「Code」をクリックしてリポジトリのトップを開く",
+      "【Add fileボタン】画面中央上あたりにある緑の「Add file」ボタンをクリック → プルダウンで「Create new file」を選択",
+      "【ファイル名テキストボックス】画面上部の入力欄に「elementor/index.html」と入力する（「/」を入力した瞬間にフォルダが自動作成される）",
+      "【内容欄】画面中央の大きいテキストエリアに「準備中」と1文字だけ入力（仮のファイルとして保存するため）",
+      "【Commit changesボタン】画面右上の緑「Commit changes...」→ポップアップで「Commit directly to the main branch」を確認して「Commit changes」をクリック",
     ],
     warns: [
-      "ファイル名が index.html でないとトップページが真っ白になる",
-      "日本語ファイル名でアップロードした場合も同様にリネームが必要",
-      "古いファイルが残っている場合は削除する（三点メニュー→Delete file）",
+      "フォルダ名は英数字・ハイフンのみ推奨（日本語・スペース不可）",
+      "フォルダ名がそのままURLになる（例：elementor → .../elementor/）",
+      "2枚目以降も同じ手順でフォルダを追加するだけでOK",
     ],
     qa: [
-      { q: "ホームに何も映らない…", a: "ファイル名がindex.htmlになっていないのが原因。GitHubはindex.htmlという名前のファイルだけをトップページとして表示します。" },
-      { q: "SharePointにHTMLをアップロードしたら真っ白だった", a: "SharePointはセキュリティ制限でHTML内のJavaScript（React）を実行しません。GitHub PagesやNetlifyなど外部ホスティングが必要です。" },
+      { q: "フォルダ名はどうやって決める？", a: "ページの内容を英語で短く表したものが理想です。例：Elementorガイド→「elementor」、GitHubガイド→「github-guide」、WordPressガイド→「wp-guide」など。「複数ページの考え方」タブも参考にしてください。" },
+    ],
+  },
+  {
+    id: 5, phase: "ファイルアップロード", phaseColor: "#0ea5e9", phaseBg: "#f0f9ff",
+    title: "フォルダにHTMLファイルをアップロード", icon: "⬆️",
+    desc: "作成したフォルダの中にHTMLファイルを入れる",
+    details: [
+      "【Codeタブ】ファイル一覧から先ほど作ったフォルダ名（例：「elementor」）をクリックして中に入る",
+      "【Add fileボタン】緑の「Add file」→プルダウンで「Upload files」を選択",
+      "HTMLファイルをドラッグ＆ドロップ（または「choose your files」をクリックして選択）",
+      "【Commit changesボタン】画面一番下の緑の「Commit changes」ボタンをクリック",
+      "【ファイル名確認】アップロード後、ファイル名が「index.html」以外の場合は次の手順でリネームする",
+    ],
+    warns: [
+      "必ずフォルダの中に入ってからアップロードすること（リポジトリのトップからアップロードするとフォルダの外に置かれてしまう）",
+    ],
+    qa: [
+      { q: "ファイル名をindex.htmlに変えるには？", a: "アップロード後、ファイルをクリック→右上の鉛筆アイコン→ファイル名テキストボックスを「index.html」に書き換え→「Commit changes...」→「Commit changes」でOKです。" },
+      { q: "Commit changesのポップアップに何を入力すればいい？", a: "「Commit message」欄は自動入力されているので変更不要。「Commit directly to the main branch」が選択されていることだけ確認して緑の「Commit changes」を押せばOKです。" },
     ],
   },
   {
     id: 6, phase: "GitHub Pages有効化", phaseColor: "#8b5cf6", phaseBg: "#f5f3ff",
     title: "GitHub Pagesを有効にする", icon: "🌐",
-    desc: "リポジトリの設定からPages機能をオンにする",
+    desc: "リポジトリの設定からPages機能をオンにする（初回のみ）",
     details: [
-      "リポジトリ上部メニューの「Settings」をクリック",
-      "左サイドメニューの「Pages」をクリック",
-      "「Branch」のところで「None」→「main」に変更",
-      "「Save」ボタンをクリック",
-      "1〜2分待つ",
+      "【Settingsタブ】上部タブの右側「Settings」（歯車アイコン）をクリック",
+      "【Pagesメニュー】左サイドメニューの「Code and automation」セクションの中にある「Pages」をクリック",
+      "【Branchプルダウン】「Build and deployment」の「Branch」欄にある「None」と書かれたプルダウンをクリック → 「main」を選択",
+      "【Saveボタン】「main」の右隣に出てくる「Save」ボタンをクリック",
+      "✅ この時点で公開処理が開始されます（まだ反映まで1〜2分かかります）",
     ],
     warns: [], qa: [],
   },
   {
     id: 7, phase: "公開確認", phaseColor: "#ec4899", phaseBg: "#fdf2f8",
     title: "公開URLを確認・アクセス", icon: "🎉",
-    desc: "サイトが公開されたことを確認する",
+    desc: "サイトが公開されたことを確認する（ここで公開完了）",
     details: [
-      "Settings → Pages を開くと緑色で「Your site is live at」と表示される",
-      "または右側の「Deployments」→「github-pages」→「View deployment」をクリック",
+      "1〜2分待ってからページを更新する",
+      "【Settingsタブ → Pages】緑色の帯で「Your site is live at https://〇〇.github.io/〇〇/」と表示されたら公開完了 🎉",
+      "または【Codeタブ】右側の「Deployments」→「github-pages」→ 緑の✅マークがついていれば公開済み → 「View deployment」ボタンで実際のページを確認",
       "URLの形式：https://【ユーザー名】.github.io/【リポジトリ名】/",
       "例：https://ponmaina.github.io/wp-manual/",
     ],
-    warns: ["反映まで2〜3分かかる場合があります"],
+    warns: ["反映まで2〜3分かかる場合があります。緑の帯や✅が出るまで待ってください"],
     qa: [
       { q: "プレビューはどこで確認できる？", a: "リポジトリ右側の「Deployments」→「github-pages」→「View deployment」ボタンから確認できます。" },
-      { q: "URLを開くとGitHubの編集画面になってしまう", a: "GitHub内のリンクをクリックすると編集画面に飛んでしまいます。①ブラウザのアドレスバーに直接「https://ponmaina.github.io/wp-manual/」と入力してEnter、または②リポジトリ右側「Deployments」→「github-pages」→「View deployment」ボタンをクリックすると正しく公開ページが開けます。" },
+      { q: "URLを開くとGitHubの編集画面になってしまう", a: "GitHub内のリンクをクリックすると編集画面に飛んでしまいます。①ブラウザのアドレスバーに直接URLを入力してEnter、または②リポジトリ右側「Deployments」→「github-pages」→「View deployment」ボタンをクリックすると正しく公開ページが開けます。" },
+    ],
+  },
+];
+
+const updateSteps = [
+  {
+    id: 1, phase: "ファイル準備", phaseColor: "#6366f1", phaseBg: "#eef2ff",
+    title: "更新したHTMLファイルをダウンロード", icon: "📄",
+    desc: "Claudeで修正・更新したHTMLファイルをダウンロードする",
+    details: ["Claudeのチャットで修正済みファイルリンクをクリック", "ダウンロードする（ファイル名は何でもOK）"],
+    warns: [], qa: [],
+  },
+  {
+    id: 2, phase: "アップロード", phaseColor: "#10b981", phaseBg: "#f0fdf4",
+    title: "GitHubに新しいファイルをアップロード", icon: "⬆️",
+    desc: "既存のindex.htmlを上書きする",
+    details: [
+      "【Codeタブ】上部タブの一番左「Code」をクリックしてリポジトリのトップを開く",
+      "【Add fileボタン】画面中央上あたりにある緑の「Add file」ボタンをクリック → プルダウンで「Upload files」を選択",
+      "更新したHTMLファイルをドラッグ＆ドロップ",
+      "【Commit changesボタン】画面一番下の緑の「Commit changes」ボタンをクリック",
+    ],
+    warns: [],
+    qa: [
+      { q: "古いファイルを削除する必要はある？", a: "不要です！同じ名前（index.html）でアップロードすると自動で上書きされます。" },
+    ],
+  },
+  {
+    id: 3, phase: "ファイル名変更", phaseColor: "#f59e0b", phaseBg: "#fffbeb",
+    title: "ファイル名を index.html に変更", icon: "✏️",
+    desc: "アップロードしたファイル名がindex.html以外の場合のみ必要",
+    details: [
+      "【Codeタブ】ファイル一覧に表示された新しいファイルをクリック",
+      "【鉛筆アイコン】画面右上の鉛筆マーク（✏️ Edit this file）をクリック",
+      "【ファイル名テキストボックス】画面左上のテキストボックスのファイル名を「index.html」に書き換える",
+      "【Commit changes...ボタン】画面右上の緑の「Commit changes...」ボタンをクリック",
+      "【ポップアップ】「Commit directly to the main branch」が選択されていることを確認して緑の「Commit changes」を押す",
+    ],
+    warns: ["最初からファイル名を「index.html」にしてダウンロードしておくとこの手順は不要"],
+    qa: [],
+  },
+  {
+    id: 4, phase: "反映確認", phaseColor: "#ec4899", phaseBg: "#fdf2f8",
+    title: "更新が反映されたか確認", icon: "✅",
+    desc: "1〜2分待ってから公開ページにアクセスして確認する",
+    details: [
+      "1〜2分待つ",
+      "【Codeタブ】右側の「Deployments」→「github-pages」→ 緑の✅マークが出たら反映完了",
+      "「View deployment」ボタンをクリックして実際のページで更新内容を確認",
+      "ブラウザのキャッシュが残っている場合は「Ctrl + Shift + R」（Macは「Cmd + Shift + R」）で強制更新",
+    ],
+    warns: ["反映まで2〜3分かかる場合があります"],
+    qa: [
+      { q: "更新したはずなのに古い内容が表示される", a: "ブラウザのキャッシュが原因の場合があります。「Ctrl + Shift + R」（Macは「Cmd + Shift + R」）で強制更新してください。" },
     ],
   },
 ];
@@ -118,9 +181,10 @@ const steps = [
 const phaseColors = {
   "準備": "#6366f1", "リポジトリ作成": "#0ea5e9", "ファイルアップロード": "#10b981",
   "ファイル名変更": "#f59e0b", "GitHub Pages有効化": "#8b5cf6", "公開確認": "#ec4899",
+  "ファイル準備": "#6366f1", "アップロード": "#10b981", "反映確認": "#ec4899",
 };
 
-function App() {
+function StepList({ steps }) {
   const [activeStep, setActiveStep] = useState(null);
   const [filter, setFilter] = useState("すべて");
   const [openQA, setOpenQA] = useState({});
@@ -130,38 +194,22 @@ function App() {
   const toggleQA = (key) => setOpenQA(prev => ({ ...prev, [key]: !prev[key] }));
 
   return (
-    <div style={{ fontFamily: "'Hiragino Sans','Yu Gothic','Meiryo',sans-serif", maxWidth: 860, margin: "0 auto", padding: 16, background: "#f8fafc", minHeight: "100vh" }}>
-
-      {/* ヘッダー */}
-      <div style={{ background: "linear-gradient(135deg,#1e293b 0%,#334155 100%)", borderRadius: 14, padding: "20px 24px", marginBottom: 18, color: "#fff" }}>
-        <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 4, letterSpacing: "0.1em" }}>DEPLOYMENT GUIDE</div>
-        <div style={{ fontSize: 22, fontWeight: "bold", marginBottom: 4 }}>HTMLファイル → GitHub Pages 公開手順</div>
-        <div style={{ fontSize: 12, opacity: 0.75 }}>よくあるつまずきポイント・Q&A付き</div>
-        <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {[{ label: "全7ステップ", icon: "📋" }, { label: "無料で公開可能", icon: "💰" }, { label: "Q&A付き", icon: "💬" }].map(b => (
-            <span key={b.label} style={{ background: "rgba(255,255,255,0.12)", borderRadius: 20, padding: "4px 12px", fontSize: 11 }}>{b.icon} {b.label}</span>
-          ))}
-        </div>
+    <div>
+      {/* フィルター（折り返し対応） */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+        {["すべて", ...phaseList].map(p => (
+          <button key={p} onClick={() => { setFilter(p); setActiveStep(null); }} style={{
+            padding: "6px 14px", borderRadius: 20, border: "2px solid",
+            borderColor: filter === p ? (phaseColors[p] || "#1e293b") : "#e2e8f0",
+            background: filter === p ? (phaseColors[p] || "#1e293b") : "#fff",
+            color: filter === p ? "#fff" : "#64748b",
+            fontSize: 12, cursor: "pointer",
+            fontWeight: filter === p ? "bold" : "normal",
+            transition: "all 0.15s", fontFamily: "inherit"
+          }}>{p}</button>
+        ))}
       </div>
 
-      {/* フィルター */}
-      <div style={{ overflowX: "auto", paddingBottom: 6, marginBottom: 14 }}>
-        <div style={{ display: "flex", gap: 6, minWidth: "max-content" }}>
-          {["すべて", ...phaseList].map(p => (
-            <button key={p} onClick={() => setFilter(p)} style={{
-              padding: "6px 14px", borderRadius: 20, border: "2px solid",
-              borderColor: filter === p ? (phaseColors[p] || "#1e293b") : "#e2e8f0",
-              background: filter === p ? (phaseColors[p] || "#1e293b") : "#fff",
-              color: filter === p ? "#fff" : "#64748b",
-              fontSize: 12, cursor: "pointer", whiteSpace: "nowrap",
-              fontWeight: filter === p ? "bold" : "normal",
-              transition: "all 0.15s", fontFamily: "inherit"
-            }}>{p}</button>
-          ))}
-        </div>
-      </div>
-
-      {/* ステップ一覧 */}
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
         {filtered.map(step => {
           const isActive = activeStep === step.id;
@@ -207,7 +255,6 @@ function App() {
                       ))}
                     </div>
                   </div>
-
                   {step.warns.length > 0 && (
                     <div style={{ background: "#fefce8", border: "1px solid #fde047", borderRadius: 8, padding: "10px 14px", marginBottom: step.qa.length ? 12 : 0 }}>
                       <div style={{ fontSize: 11, fontWeight: "bold", color: "#854d0e", marginBottom: 6 }}>⚠️ つまずきやすいポイント</div>
@@ -216,7 +263,6 @@ function App() {
                       ))}
                     </div>
                   )}
-
                   {step.qa.length > 0 && (
                     <div>
                       <div style={{ fontSize: 11, fontWeight: "bold", color: "#64748b", marginBottom: 8 }}>💬 このステップでよくある質問</div>
@@ -246,14 +292,317 @@ function App() {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+function VersionGuide() {
+  const [openItem, setOpenItem] = useState(null);
+  const toggle = (key) => setOpenItem(prev => prev === key ? null : key);
+
+  const sections = [
+    {
+      key: "auto", icon: "🔄", title: "GitHubは自動でバージョン管理してくれる",
+      color: "#6366f1", bg: "#eef2ff", border: "#c7d2fe",
+      content: "ファイルをアップロード・更新するたびに「Commit」として履歴が自動保存されます。特別な設定は不要で、何もしなくても過去のすべてのバージョンがGitHub上に残り続けます。",
+      extra: [
+        "1回目のアップロード → Commit①（初回公開）",
+        "2回目の更新　　　　→ Commit②（〇〇を修正）",
+        "3回目の更新　　　　→ Commit③（△△を追加）",
+        "いつでも過去のバージョンに戻せる ✅",
+      ]
+    },
+    {
+      key: "message", icon: "💬", title: "Commit messageにメモを残すと便利",
+      color: "#10b981", bg: "#f0fdf4", border: "#bbf7d0",
+      content: "アップロード・更新時のポップアップ「Commit message」欄にメモを入力しておくと、後から履歴を見たときにどの変更かすぐわかります。",
+      extra: [
+        "例：「初回公開」",
+        "例：「ボタンの色を変更」",
+        "例：「レイアウト修正 2024/03」",
+        "例：「テキスト誤字修正」",
+      ]
+    },
+    {
+      key: "history", icon: "📋", title: "履歴（過去バージョン）の確認方法",
+      color: "#0ea5e9", bg: "#f0f9ff", border: "#bae6fd",
+      content: "いつ・どんな変更をしたかをGitHub上で一覧確認できます。",
+      extra: [
+        "【Codeタブ】上部タブ一番左「Code」をクリック",
+        "【ファイルをクリック】ファイル一覧から「index.html」をクリック",
+        "【Historyボタン】画面右上の「History」をクリック",
+        "→ Commitの一覧が表示される。クリックするとその時点の中身が見られる",
+      ]
+    },
+    {
+      key: "revert", icon: "⏪", title: "過去のバージョンに戻す方法",
+      color: "#f59e0b", bg: "#fffbeb", border: "#fde68a",
+      content: "間違えて更新してしまった場合など、過去のバージョンに戻したいときの手順です。",
+      extra: [
+        "【Codeタブ】→「index.html」をクリック → 右上「History」をクリック",
+        "【戻したいCommitをクリック】一覧から戻したい時点のCommitをクリック",
+        "【Codeタブ（Raw）】画面右上「<> Code」→「Raw」ボタンをクリックしてHTMLの中身を全選択コピー",
+        "【新しいindex.htmlを作る】コピーした内容をテキストエディタに貼り付けて「index.html」として保存",
+        "【アップロード】「🔄 ページを更新する」タブの手順でアップロードして上書き",
+      ]
+    },
+    {
+      key: "tips", icon: "💡", title: "バージョン管理のコツ",
+      color: "#ec4899", bg: "#fdf2f8", border: "#fbcfe8",
+      content: "運用をスムーズにするためのおすすめの習慣です。",
+      extra: [
+        "更新前にCommit messageに日付と変更内容を書く習慣をつける",
+        "大きな変更の前に「変更前バックアップ」とメモしておくと安心",
+        "Historyは何件でも遡れるので、気軽にどんどん更新してOK",
+        "間違えてもいつでも戻せるので怖くない！",
+      ]
+    },
+  ];
+
+  return (
+    <div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+        {sections.map(sec => {
+          const isOpen = openItem === sec.key;
+          return (
+            <div key={sec.key}>
+              <div onClick={() => toggle(sec.key)} style={{
+                background: "#fff", borderRadius: 12,
+                border: "2px solid " + (isOpen ? sec.color : "#e2e8f0"),
+                padding: "12px 16px", cursor: "pointer", transition: "all 0.15s",
+                boxShadow: isOpen ? "0 0 0 3px " + sec.color + "22" : "none"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                    background: isOpen ? sec.color : sec.bg,
+                    color: isOpen ? "#fff" : sec.color,
+                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18
+                  }}>{sec.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: "bold", color: "#1e293b" }}>{sec.title}</div>
+                  </div>
+                  <div style={{ color: "#94a3b8", fontSize: 16, transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>▶</div>
+                </div>
+              </div>
+
+              {isOpen && (
+                <div style={{ background: sec.bg, border: "2px solid " + sec.color, borderTop: "none", borderRadius: "0 0 12px 12px", padding: 16, animation: "fadeIn 0.2s ease" }}>
+                  <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.7, marginBottom: 12 }}>{sec.content}</div>
+                  <div style={{ background: "#fff", border: "1px solid " + sec.border, borderRadius: 8, padding: "10px 14px" }}>
+                    {sec.extra.map((e, i) => (
+                      <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: i < sec.extra.length - 1 ? 6 : 0 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: "50%", flexShrink: 0, background: sec.color, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: "bold", marginTop: 1 }}>{i + 1}</div>
+                        <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.6, paddingTop: 2 }}>{e}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MultiPageGuide() {
+  const [openItem, setOpenItem] = useState(null);
+  const toggle = (key) => setOpenItem(prev => prev === key ? null : key);
+
+  const sections = [
+    {
+      key: "when", icon: "🤔", title: "複数ページに分けるべき判断基準",
+      color: "#6366f1", bg: "#eef2ff", border: "#c7d2fe",
+      content: "以下のどれかに当てはまる場合は、別ページ（別フォルダ）にするのがおすすめです。",
+      extra: [
+        "✅ マニュアルの種類・テーマが違う（例：Elementorの使い方 ／ GitHubの使い方）",
+        "✅ 対象者・担当者が違う（例：編集者向け ／ 管理者向け）",
+        "✅ 更新頻度が大きく違う（片方だけ頻繁に更新する）",
+        "✅ 1ページが長くなりすぎてスクロールが大変になった",
+        "❌ 内容が関連していてセットで使うものは1ページにまとめた方がよい",
+      ]
+    },
+    {
+      key: "structure", icon: "📁", title: "フォルダ構成の考え方",
+      color: "#0ea5e9", bg: "#f0f9ff", border: "#bae6fd",
+      content: "リポジトリ（wp-manual）の中にテーマ別フォルダを作り、それぞれの中にindex.htmlを置きます。",
+      extra: [
+        "wp-manual/（リポジトリ）",
+        "　├── elementor/index.html　← ElementorガイドのURL",
+        "　├── github-guide/index.html　← GitHubガイドのURL",
+        "　└── wp-basics/index.html　← WordPress基礎ガイドのURL",
+      ]
+    },
+    {
+      key: "url", icon: "🔗", title: "URLの命名ルール",
+      color: "#10b981", bg: "#f0fdf4", border: "#bbf7d0",
+      content: "フォルダ名がそのままURLになります。英数字・ハイフンのみ使えます。",
+      extra: [
+        "フォルダ名：elementor　→　URL：.../elementor/",
+        "フォルダ名：github-guide　→　URL：.../github-guide/",
+        "フォルダ名：wp-basics　→　URL：.../wp-basics/",
+        "❌ 日本語・スペース・アンダースコアは使わない（文字化けの原因）",
+      ]
+    },
+    {
+      key: "add", icon: "➕", title: "2枚目以降のページを追加する手順",
+      color: "#f59e0b", bg: "#fffbeb", border: "#fde68a",
+      content: "2枚目以降は「初回公開」タブのステップ④フォルダ作成〜⑤アップロードを繰り返すだけです。Settings変更は不要です。",
+      extra: [
+        "【Codeタブ】「Add file」→「Create new file」をクリック",
+        "【ファイル名テキストボックス】「github-guide/index.html」のように入力（新しいフォルダ名/index.html）",
+        "【内容欄】「準備中」と入力して「Commit changes」",
+        "【Upload files】フォルダに入って実際のHTMLをアップロード・リネーム",
+        "✅ 1〜2分で新しいURLが自動で使えるようになる",
+      ]
+    },
+    {
+      key: "teams", icon: "💼", title: "Teamsタブへの登録",
+      color: "#ec4899", bg: "#fdf2f8", border: "#fbcfe8",
+      content: "ページごとのURLをそれぞれTeamsのタブに登録します。",
+      extra: [
+        "Teamsチャンネルの「＋」タブ → 「Webサイト」を選択",
+        "名前：「Elementorガイド」／ URL：https://〇〇.github.io/wp-manual/elementor/",
+        "名前：「GitHubガイド」／ URL：https://〇〇.github.io/wp-manual/github-guide/",
+        "ページが増えたらタブを追加するだけでOK ✅",
+      ]
+    },
+  ];
+
+  return (
+    <div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+        {sections.map(sec => {
+          const isOpen = openItem === sec.key;
+          return (
+            <div key={sec.key}>
+              <div onClick={() => toggle(sec.key)} style={{
+                background: "#fff", borderRadius: 12,
+                border: "2px solid " + (isOpen ? sec.color : "#e2e8f0"),
+                padding: "12px 16px", cursor: "pointer", transition: "all 0.15s",
+                boxShadow: isOpen ? "0 0 0 3px " + sec.color + "22" : "none"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                    background: isOpen ? sec.color : sec.bg,
+                    color: isOpen ? "#fff" : sec.color,
+                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18
+                  }}>{sec.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: "bold", color: "#1e293b" }}>{sec.title}</div>
+                  </div>
+                  <div style={{ color: "#94a3b8", fontSize: 16, transform: isOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>▶</div>
+                </div>
+              </div>
+              {isOpen && (
+                <div style={{ background: sec.bg, border: "2px solid " + sec.color, borderTop: "none", borderRadius: "0 0 12px 12px", padding: 16, animation: "fadeIn 0.2s ease" }}>
+                  <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.7, marginBottom: 12 }}>{sec.content}</div>
+                  <div style={{ background: "#fff", border: "1px solid " + sec.border, borderRadius: 8, padding: "10px 14px" }}>
+                    {sec.extra.map((e, i) => (
+                      <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: i < sec.extra.length - 1 ? 6 : 0 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: "50%", flexShrink: 0, background: sec.color, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: "bold", marginTop: 1 }}>{i + 1}</div>
+                        <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.6, paddingTop: 2, fontFamily: e.startsWith("　") ? "monospace" : "inherit" }}>{e}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [mainTab, setMainTab] = useState("publish");
+
+  const tabs = [
+    { key: "publish",   label: "🚀 初回公開",           activeColor: "#1e293b" },
+    { key: "update",    label: "🔄 ページを更新する",    activeColor: "#0369a1" },
+    { key: "multipage", label: "📄 複数ページの考え方",  activeColor: "#0891b2" },
+    { key: "version",   label: "🕓 バージョン確認",      activeColor: "#6366f1" },
+  ];
+
+  const headerConfig = {
+    publish: {
+      bg: "linear-gradient(135deg,#1e293b 0%,#334155 100%)",
+      label: "DEPLOYMENT GUIDE", title: "HTMLファイル → GitHub Pages 公開手順",
+      sub: "よくあるつまずきポイント・Q&A付き",
+      badges: [{ label: "全7ステップ", icon: "📋" }, { label: "無料で公開可能", icon: "💰" }, { label: "Q&A付き", icon: "💬" }],
+    },
+    update: {
+      bg: "linear-gradient(135deg,#0369a1 0%,#0ea5e9 100%)",
+      label: "UPDATE GUIDE", title: "ページの更新手順",
+      sub: "公開済みのページを最新版に更新する",
+      badges: [{ label: "全4ステップ", icon: "📋" }, { label: "Settings変更不要", icon: "⚡" }, { label: "Q&A付き", icon: "💬" }],
+    },
+    multipage: {
+      bg: "linear-gradient(135deg,#0e7490 0%,#0891b2 100%)",
+      label: "MULTI PAGE GUIDE", title: "複数ページの考え方",
+      sub: "ページを分ける判断基準・フォルダ構成・URLの命名ルール",
+      badges: [{ label: "判断基準", icon: "🤔" }, { label: "フォルダ構成", icon: "📁" }, { label: "Teams登録", icon: "💼" }],
+    },
+    version: {
+      bg: "linear-gradient(135deg,#4338ca 0%,#6366f1 100%)",
+      label: "VERSION GUIDE", title: "バージョン確認・管理方法",
+      sub: "GitHubは自動で履歴を保存。いつでも過去に戻せる",
+      badges: [{ label: "自動バージョン管理", icon: "🔄" }, { label: "履歴の確認方法", icon: "📋" }, { label: "過去に戻す方法", icon: "⏪" }],
+    },
+  };
+
+  const h = headerConfig[mainTab];
+
+  return (
+    <div style={{ fontFamily: "'Hiragino Sans','Yu Gothic','Meiryo',sans-serif", width: "100%", minHeight: "100vh", padding: 16, background: "#f8fafc" }}>
+
+      {/* メインタブ */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 0 }}>
+        {tabs.map(tab => (
+          <button key={tab.key} onClick={() => setMainTab(tab.key)} style={{
+            padding: "10px 22px", border: "2px solid",
+            borderColor: mainTab === tab.key ? tab.activeColor : "#e2e8f0",
+            borderBottom: mainTab === tab.key ? "none" : "2px solid #e2e8f0",
+            cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: "bold",
+            borderRadius: "10px 10px 0 0",
+            background: mainTab === tab.key ? tab.activeColor : "#e2e8f0",
+            color: mainTab === tab.key ? "#fff" : "#64748b",
+            transition: "all 0.15s",
+            position: "relative", zIndex: mainTab === tab.key ? 2 : 1,
+            marginBottom: mainTab === tab.key ? "-2px" : 0,
+          }}>{tab.label}</button>
+        ))}
+      </div>
+
+      {/* ヘッダー */}
+      <div style={{ background: h.bg, borderRadius: "0 10px 10px 10px", padding: "20px 24px", marginBottom: 16, color: "#fff", position: "relative", zIndex: 1 }}>
+        <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 4, letterSpacing: "0.1em" }}>{h.label}</div>
+        <div style={{ fontSize: 22, fontWeight: "bold", marginBottom: 4 }}>{h.title}</div>
+        <div style={{ fontSize: 12, opacity: 0.75 }}>{h.sub}</div>
+        <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {h.badges.map(b => (
+            <span key={b.label} style={{ background: "rgba(255,255,255,0.12)", borderRadius: 20, padding: "4px 12px", fontSize: 11 }}>{b.icon} {b.label}</span>
+          ))}
+        </div>
+      </div>
+
+      {mainTab === "publish"   && <StepList steps={publishSteps} />}
+      {mainTab === "update"    && <StepList steps={updateSteps} />}
+      {mainTab === "multipage" && <MultiPageGuide />}
+      {mainTab === "version"   && <VersionGuide />}
 
       {/* まとめ */}
       <div style={{ background: "linear-gradient(135deg,#0f172a,#1e293b)", borderRadius: 12, padding: "16px 20px", color: "#fff" }}>
-        <div style={{ fontSize: 13, fontWeight: "bold", marginBottom: 10 }}>🎉 完了後のURL構成</div>
-        <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 8, padding: "10px 14px", fontFamily: "monospace", fontSize: 12, color: "#7dd3fc", marginBottom: 12 }}>
-          https://【GitHubユーザー名】.github.io/【リポジトリ名】/
+        <div style={{ fontSize: 13, fontWeight: "bold", marginBottom: 10 }}>🎉 完了後のURL構成（フォルダあり）</div>
+        <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 8, padding: "10px 14px", fontFamily: "monospace", fontSize: 12, color: "#7dd3fc", marginBottom: 8 }}>
+          https://【ユーザー名】.github.io/【リポジトリ名】/【フォルダ名】/
         </div>
-        <div style={{ fontSize: 12, opacity: 0.7 }}>マニュアルを増やしたいときは「新しいHTMLをアップロード → Teamsに別タブを追加」するだけです</div>
+        <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 4 }}>例：https://ponmaina.github.io/wp-manual/elementor/</div>
+        <div style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>ページを増やすときは「フォルダを追加 → HTMLをアップロード」するだけです</div>
       </div>
     </div>
   );
