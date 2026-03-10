@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTMLファイル → GitHub Pages 公開手順</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f8fafc; font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+    ::-webkit-scrollbar { height: 4px; width: 4px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+const steps = [
+  {
+    id: 1, phase: "準備", phaseColor: "#6366f1", phaseBg: "#eef2ff",
+    title: "HTMLファイルをダウンロード", icon: "📄",
+    desc: "Claudeが生成したHTMLファイルをダウンロードする",
+    details: ["Claudeのチャットでファイルリンクをクリック", "「elementor-guide.html」としてダウンロード"],
+    warns: [], qa: [],
+  },
+  {
+    id: 2, phase: "準備", phaseColor: "#6366f1", phaseBg: "#eef2ff",
+    title: "GitHubにログイン", icon: "🔑",
+    desc: "github.com にアクセスしてログインする",
+    details: ["https://github.com を開く", "アカウントでログイン"],
+    warns: [], qa: [],
+  },
+  {
+    id: 3, phase: "リポジトリ作成", phaseColor: "#0ea5e9", phaseBg: "#f0f9ff",
+    title: "新しいリポジトリを作成", icon: "📁",
+    desc: "マニュアルを置くための「フォルダ」を作る",
+    details: [
+      "【＋ボタン】画面右上のアイコン群の中にある「＋」ボタンをクリック → プルダウンで「New repository」を選択",
+      "【Repository nameテキストボックス】「Repository name」と書かれた入力欄に「wp-manual」など好きな名前を入力",
+      "【Publicラジオボタン】「Public」のラジオボタンをクリックして選択（重要！Privateだと公開されない）",
+      "【Create repositoryボタン】画面下の緑の「Create repository」ボタンをクリック",
+    ],
+    warns: ["「Public」を選ばないとGitHub Pagesが使えない（無料プランの場合）"],
+    qa: [
+      { q: "セキュリティ的に大丈夫？", a: "このHTMLはデータベース・ログイン・個人情報の送受信が一切ないため脆弱性はほぼなし。入力したテキストもサーバーに送られず、ページを閉じると消えます。外部に見られるのはツールの見た目だけです。" },
+      { q: "社内限定にしたい場合は？", a: "GitHub Pages無料プランは全公開のみ。社内限定にするにはGitHub有料プラン・Power Pages・Netlifyパスワード保護が必要です。" },
+    ],
+  },
+  {
+    id: 4, phase: "ファイルアップロード", phaseColor: "#10b981", phaseBg: "#f0fdf4",
+    title: "HTMLファイルをアップロード", icon: "⬆️",
+    desc: "作成したリポジトリにHTMLファイルを追加する",
+    details: [
+      "【Codeタブ】上部タブの一番左「Code」をクリックしてリポジトリのトップを開く",
+      "【Add fileボタン】画面中央上あたりにある緑の「Add file」ボタンをクリック → プルダウンで「Upload files」を選択",
+      "「elementor-guide.html」をドラッグ＆ドロップ（または「choose your files」をクリックして選択）",
+      "【Commit changesボタン】画面一番下の緑の「Commit changes」ボタンをクリック",
+    ],
+    warns: [], qa: [],
+  },
+  {
+    id: 5, phase: "ファイル名変更", phaseColor: "#f59e0b", phaseBg: "#fffbeb",
+    title: "ファイル名を index.html に変更", icon: "✏️",
+    desc: "GitHub Pagesはindex.htmlをトップページとして認識する",
+    details: [
+      "【Codeタブ】上部タブの一番左「Code」をクリック → 画面中央のファイル一覧に「elementor-guide.html」が表示されるのでクリック",
+      "【鉛筆アイコン】ファイルの中身が表示されたら、画面右上にある鉛筆マーク（✏️ Edit this file）をクリック",
+      "【ファイル名テキストボックス】画面左上「wp-manual /」の右隣にあるテキストボックスに現在のファイル名が入っている。その中身を全選択して消し、「index.html」と入力",
+      "【Commit changes...ボタン】画面右上の緑の「Commit changes...」ボタンをクリック",
+      "【ポップアップ】ポップアップが開く。「Commit message」欄（一番上のテキストボックス）には何も変えなくてOK。「Commit directly to the main branch」が選択されていることを確認して、緑の「Commit changes」ボタンを押す",
+    ],
+    warns: [
+      "ファイル名が index.html でないとトップページが真っ白になる",
+      "日本語ファイル名でアップロードした場合も同様にリネームが必要",
+      "古いファイルが残っている場合：Codeタブ→ファイルをクリック→右上「...」（三点メニュー）→「Delete file」→「Commit changes」",
+    ],
+    qa: [
+      { q: "ホームに何も映らない…", a: "ファイル名がindex.htmlになっていないのが原因。GitHubはindex.htmlという名前のファイルだけをトップページとして表示します。" },
+      { q: "Commit changesのポップアップに何を入力すればいい？", a: "「Commit message」欄は自動で入力されているので変更不要。「Commit directly to the main branch」のラジオボタンが選択されていることだけ確認して、緑の「Commit changes」ボタンを押せばOKです。" },
+      { q: "SharePointにHTMLをアップロードしたら真っ白だった", a: "SharePointはセキュリティ制限でHTML内のJavaScript（React）を実行しません。GitHub PagesやNetlifyなど外部ホスティングが必要です。" },
+    ],
+  },
+  {
+    id: 6, phase: "GitHub Pages有効化", phaseColor: "#8b5cf6", phaseBg: "#f5f3ff",
+    title: "GitHub Pagesを有効にする", icon: "🌐",
+    desc: "リポジトリの設定からPages機能をオンにする",
+    details: [
+      "【Settingsタブ】上部タブの右側「Settings」（歯車アイコン）をクリック",
+      "【Pagesメニュー】左サイドメニューの「Code and automation」セクションの中にある「Pages」をクリック",
+      "【Branchプルダウン】「Build and deployment」の「Branch」欄にある「None」と書かれたプルダウンをクリック → 「main」を選択",
+      "【Saveボタン】「main」の右隣に出てくる「Save」ボタンをクリック",
+      "✅ この時点で公開処理が開始されます（まだ反映まで1〜2分かかります）",
+    ],
+    warns: [], qa: [],
+  },
+  {
+    id: 7, phase: "公開確認", phaseColor: "#ec4899", phaseBg: "#fdf2f8",
+    title: "公開URLを確認・アクセス", icon: "🎉",
+    desc: "サイトが公開されたことを確認する（ここで公開完了）",
+    details: [
+      "1〜2分待ってからページを更新する",
+      "【Settingsタブ → Pages】緑色の帯で「Your site is live at https://〇〇.github.io/〇〇/」と表示されたら公開完了 🎉",
+      "または【Codeタブ】右側の「Deployments」→「github-pages」→ 緑の✅マークがついていれば公開済み → 「View deployment」ボタンで実際のページを確認",
+      "URLの形式：https://【ユーザー名】.github.io/【リポジトリ名】/",
+      "例：https://ponmaina.github.io/wp-manual/",
+    ],
+    warns: ["反映まで2〜3分かかる場合があります。緑の帯や✅が出るまで待ってください"],
+    qa: [
+      { q: "プレビューはどこで確認できる？", a: "リポジトリ右側の「Deployments」→「github-pages」→「View deployment」ボタンから確認できます。" },
+      { q: "URLを開くとGitHubの編集画面になってしまう", a: "GitHub内のリンクをクリックすると編集画面に飛んでしまいます。①ブラウザのアドレスバーに直接「https://ponmaina.github.io/wp-manual/」と入力してEnter、または②リポジトリ右側「Deployments」→「github-pages」→「View deployment」ボタンをクリックすると正しく公開ページが開けます。" },
+    ],
+  },
+];
+
+const phaseColors = {
+  "準備": "#6366f1", "リポジトリ作成": "#0ea5e9", "ファイルアップロード": "#10b981",
+  "ファイル名変更": "#f59e0b", "GitHub Pages有効化": "#8b5cf6", "公開確認": "#ec4899",
+};
+
+function App() {
+  const [activeStep, setActiveStep] = useState(null);
+  const [filter, setFilter] = useState("すべて");
+  const [openQA, setOpenQA] = useState({});
+
+  const phaseList = [...new Set(steps.map(s => s.phase))];
+  const filtered = filter === "すべて" ? steps : steps.filter(s => s.phase === filter);
+  const toggleQA = (key) => setOpenQA(prev => ({ ...prev, [key]: !prev[key] }));
+
+  return (
+    <div style={{ fontFamily: "'Hiragino Sans','Yu Gothic','Meiryo',sans-serif", maxWidth: 860, margin: "0 auto", padding: 16, background: "#f8fafc", minHeight: "100vh" }}>
+
+      {/* ヘッダー */}
+      <div style={{ background: "linear-gradient(135deg,#1e293b 0%,#334155 100%)", borderRadius: 14, padding: "20px 24px", marginBottom: 18, color: "#fff" }}>
+        <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 4, letterSpacing: "0.1em" }}>DEPLOYMENT GUIDE</div>
+        <div style={{ fontSize: 22, fontWeight: "bold", marginBottom: 4 }}>HTMLファイル → GitHub Pages 公開手順</div>
+        <div style={{ fontSize: 12, opacity: 0.75 }}>よくあるつまずきポイント・Q&A付き</div>
+        <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {[{ label: "全7ステップ", icon: "📋" }, { label: "無料で公開可能", icon: "💰" }, { label: "Q&A付き", icon: "💬" }].map(b => (
+            <span key={b.label} style={{ background: "rgba(255,255,255,0.12)", borderRadius: 20, padding: "4px 12px", fontSize: 11 }}>{b.icon} {b.label}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* フィルター */}
+      <div style={{ overflowX: "auto", paddingBottom: 6, marginBottom: 14 }}>
+        <div style={{ display: "flex", gap: 6, minWidth: "max-content" }}>
+          {["すべて", ...phaseList].map(p => (
+            <button key={p} onClick={() => setFilter(p)} style={{
+              padding: "6px 14px", borderRadius: 20, border: "2px solid",
+              borderColor: filter === p ? (phaseColors[p] || "#1e293b") : "#e2e8f0",
+              background: filter === p ? (phaseColors[p] || "#1e293b") : "#fff",
+              color: filter === p ? "#fff" : "#64748b",
+              fontSize: 12, cursor: "pointer", whiteSpace: "nowrap",
+              fontWeight: filter === p ? "bold" : "normal",
+              transition: "all 0.15s", fontFamily: "inherit"
+            }}>{p}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* ステップ一覧 */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+        {filtered.map(step => {
+          const isActive = activeStep === step.id;
+          return (
+            <div key={step.id}>
+              <div onClick={() => setActiveStep(isActive ? null : step.id)} style={{
+                background: "#fff", borderRadius: 12,
+                border: "2px solid " + (isActive ? step.phaseColor : "#e2e8f0"),
+                padding: "12px 16px", cursor: "pointer", transition: "all 0.15s",
+                boxShadow: isActive ? "0 0 0 3px " + step.phaseColor + "22" : "none"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                    background: isActive ? step.phaseColor : step.phaseBg,
+                    color: isActive ? "#fff" : step.phaseColor,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 14, fontWeight: "bold"
+                  }}>{step.id}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 14, fontWeight: "bold", color: "#1e293b" }}>{step.icon} {step.title}</span>
+                      <span style={{ background: step.phaseBg, color: step.phaseColor, fontSize: 10, fontWeight: "bold", padding: "2px 8px", borderRadius: 10 }}>{step.phase}</span>
+                      {step.warns.length > 0 && <span style={{ background: "#fef9c3", color: "#854d0e", fontSize: 10, padding: "2px 8px", borderRadius: 10 }}>⚠️ 注意あり</span>}
+                      {step.qa.length > 0 && <span style={{ background: "#f0fdf4", color: "#166534", fontSize: 10, padding: "2px 8px", borderRadius: 10 }}>💬 Q&A</span>}
+                    </div>
+                    <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{step.desc}</div>
+                  </div>
+                  <div style={{ color: "#94a3b8", fontSize: 16, transform: isActive ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>▶</div>
+                </div>
+              </div>
+
+              {isActive && (
+                <div style={{ background: step.phaseBg, border: "2px solid " + step.phaseColor, borderTop: "none", borderRadius: "0 0 12px 12px", padding: 16, animation: "fadeIn 0.2s ease" }}>
+                  <div style={{ marginBottom: step.warns.length || step.qa.length ? 14 : 0 }}>
+                    <div style={{ fontSize: 11, fontWeight: "bold", color: "#64748b", marginBottom: 8 }}>📋 手順</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      {step.details.map((d, i) => (
+                        <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                          <div style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, background: step.phaseColor, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: "bold", marginTop: 1 }}>{i + 1}</div>
+                          <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.6, paddingTop: 2 }}>{d}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {step.warns.length > 0 && (
+                    <div style={{ background: "#fefce8", border: "1px solid #fde047", borderRadius: 8, padding: "10px 14px", marginBottom: step.qa.length ? 12 : 0 }}>
+                      <div style={{ fontSize: 11, fontWeight: "bold", color: "#854d0e", marginBottom: 6 }}>⚠️ つまずきやすいポイント</div>
+                      {step.warns.map((w, i) => (
+                        <div key={i} style={{ fontSize: 12, color: "#713f12", marginBottom: i < step.warns.length - 1 ? 4 : 0 }}>• {w}</div>
+                      ))}
+                    </div>
+                  )}
+
+                  {step.qa.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: "bold", color: "#64748b", marginBottom: 8 }}>💬 このステップでよくある質問</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        {step.qa.map((qa, i) => {
+                          const key = step.id + "-" + i;
+                          return (
+                            <div key={i} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 8, overflow: "hidden" }}>
+                              <div onClick={() => toggleQA(key)} style={{ padding: "9px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                                <span style={{ fontSize: 12, fontWeight: "bold", color: "#374151" }}>Q. {qa.q}</span>
+                                <span style={{ color: "#94a3b8", fontSize: 12, display: "inline-block", transform: openQA[key] ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>▶</span>
+                              </div>
+                              {openQA[key] && (
+                                <div style={{ padding: "0 14px 12px", fontSize: 12, color: "#475569", lineHeight: 1.7, borderTop: "1px solid #f1f5f9" }}>
+                                  <div style={{ paddingTop: 10 }}>A. {qa.a}</div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* まとめ */}
+      <div style={{ background: "linear-gradient(135deg,#0f172a,#1e293b)", borderRadius: 12, padding: "16px 20px", color: "#fff" }}>
+        <div style={{ fontSize: 13, fontWeight: "bold", marginBottom: 10 }}>🎉 完了後のURL構成</div>
+        <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 8, padding: "10px 14px", fontFamily: "monospace", fontSize: 12, color: "#7dd3fc", marginBottom: 12 }}>
+          https://【GitHubユーザー名】.github.io/【リポジトリ名】/
+        </div>
+        <div style={{ fontSize: 12, opacity: 0.7 }}>マニュアルを増やしたいときは「新しいHTMLをアップロード → Teamsに別タブを追加」するだけです</div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
