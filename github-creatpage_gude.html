@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; }
     body { background: #f8fafc; font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
     ::-webkit-scrollbar { height: 4px; width: 4px; }
@@ -21,7 +22,7 @@
 <script type="text/babel">
 const { useState } = React;
 
-const steps = [
+const publishSteps = [
   {
     id: 1, phase: "準備", phaseColor: "#6366f1", phaseBg: "#eef2ff",
     title: "HTMLファイルをダウンロード", icon: "📄",
@@ -73,7 +74,7 @@ const steps = [
       "【鉛筆アイコン】ファイルの中身が表示されたら、画面右上にある鉛筆マーク（✏️ Edit this file）をクリック",
       "【ファイル名テキストボックス】画面左上「wp-manual /」の右隣にあるテキストボックスに現在のファイル名が入っている。その中身を全選択して消し、「index.html」と入力",
       "【Commit changes...ボタン】画面右上の緑の「Commit changes...」ボタンをクリック",
-      "【ポップアップ】ポップアップが開く。「Commit message」欄（一番上のテキストボックス）には何も変えなくてOK。「Commit directly to the main branch」が選択されていることを確認して、緑の「Commit changes」ボタンを押す",
+      "【ポップアップ】「Commit message」欄（一番上のテキストボックス）は変更不要。「Commit directly to the main branch」が選択されていることを確認して、緑の「Commit changes」ボタンを押す",
     ],
     warns: [
       "ファイル名が index.html でないとトップページが真っ白になる",
@@ -113,7 +114,61 @@ const steps = [
     warns: ["反映まで2〜3分かかる場合があります。緑の帯や✅が出るまで待ってください"],
     qa: [
       { q: "プレビューはどこで確認できる？", a: "リポジトリ右側の「Deployments」→「github-pages」→「View deployment」ボタンから確認できます。" },
-      { q: "URLを開くとGitHubの編集画面になってしまう", a: "GitHub内のリンクをクリックすると編集画面に飛んでしまいます。①ブラウザのアドレスバーに直接「https://ponmaina.github.io/wp-manual/」と入力してEnter、または②リポジトリ右側「Deployments」→「github-pages」→「View deployment」ボタンをクリックすると正しく公開ページが開けます。" },
+      { q: "URLを開くとGitHubの編集画面になってしまう", a: "GitHub内のリンクをクリックすると編集画面に飛んでしまいます。①ブラウザのアドレスバーに直接URLを入力してEnter、または②リポジトリ右側「Deployments」→「github-pages」→「View deployment」ボタンをクリックすると正しく公開ページが開けます。" },
+    ],
+  },
+];
+
+const updateSteps = [
+  {
+    id: 1, phase: "ファイル準備", phaseColor: "#6366f1", phaseBg: "#eef2ff",
+    title: "更新したHTMLファイルをダウンロード", icon: "📄",
+    desc: "Claudeで修正・更新したHTMLファイルをダウンロードする",
+    details: ["Claudeのチャットで修正済みファイルリンクをクリック", "ダウンロードする（ファイル名は何でもOK）"],
+    warns: [], qa: [],
+  },
+  {
+    id: 2, phase: "アップロード", phaseColor: "#10b981", phaseBg: "#f0fdf4",
+    title: "GitHubに新しいファイルをアップロード", icon: "⬆️",
+    desc: "既存のindex.htmlを上書きする",
+    details: [
+      "【Codeタブ】上部タブの一番左「Code」をクリックしてリポジトリのトップを開く",
+      "【Add fileボタン】画面中央上あたりにある緑の「Add file」ボタンをクリック → プルダウンで「Upload files」を選択",
+      "更新したHTMLファイルをドラッグ＆ドロップ",
+      "【Commit changesボタン】画面一番下の緑の「Commit changes」ボタンをクリック",
+    ],
+    warns: [],
+    qa: [
+      { q: "古いファイルを削除する必要はある？", a: "不要です！同じ名前（index.html）でアップロードすると自動で上書きされます。" },
+    ],
+  },
+  {
+    id: 3, phase: "ファイル名変更", phaseColor: "#f59e0b", phaseBg: "#fffbeb",
+    title: "ファイル名を index.html に変更", icon: "✏️",
+    desc: "アップロードしたファイル名がindex.html以外の場合のみ必要",
+    details: [
+      "【Codeタブ】ファイル一覧に表示された新しいファイルをクリック",
+      "【鉛筆アイコン】画面右上の鉛筆マーク（✏️ Edit this file）をクリック",
+      "【ファイル名テキストボックス】画面左上のテキストボックスのファイル名を「index.html」に書き換える",
+      "【Commit changes...ボタン】画面右上の緑の「Commit changes...」ボタンをクリック",
+      "【ポップアップ】「Commit directly to the main branch」が選択されていることを確認して緑の「Commit changes」を押す",
+    ],
+    warns: ["最初からファイル名を「index.html」にしてダウンロードしておくとこの手順は不要"],
+    qa: [],
+  },
+  {
+    id: 4, phase: "反映確認", phaseColor: "#ec4899", phaseBg: "#fdf2f8",
+    title: "更新が反映されたか確認", icon: "✅",
+    desc: "1〜2分待ってから公開ページにアクセスして確認する",
+    details: [
+      "1〜2分待つ",
+      "【Codeタブ】右側の「Deployments」→「github-pages」→ 緑の✅マークが出たら反映完了",
+      "「View deployment」ボタンをクリックして実際のページで更新内容を確認",
+      "ブラウザのキャッシュが残っている場合は「Ctrl + Shift + R」（Macは「Cmd + Shift + R」）で強制更新",
+    ],
+    warns: ["反映まで2〜3分かかる場合があります"],
+    qa: [
+      { q: "更新したはずなのに古い内容が表示される", a: "ブラウザのキャッシュが原因の場合があります。「Ctrl + Shift + R」（Macは「Cmd + Shift + R」）で強制更新してください。" },
     ],
   },
 ];
@@ -121,9 +176,10 @@ const steps = [
 const phaseColors = {
   "準備": "#6366f1", "リポジトリ作成": "#0ea5e9", "ファイルアップロード": "#10b981",
   "ファイル名変更": "#f59e0b", "GitHub Pages有効化": "#8b5cf6", "公開確認": "#ec4899",
+  "ファイル準備": "#6366f1", "アップロード": "#10b981", "反映確認": "#ec4899",
 };
 
-function App() {
+function StepList({ steps }) {
   const [activeStep, setActiveStep] = useState(null);
   const [filter, setFilter] = useState("すべて");
   const [openQA, setOpenQA] = useState({});
@@ -133,38 +189,22 @@ function App() {
   const toggleQA = (key) => setOpenQA(prev => ({ ...prev, [key]: !prev[key] }));
 
   return (
-    <div style={{ fontFamily: "'Hiragino Sans','Yu Gothic','Meiryo',sans-serif", maxWidth: 860, margin: "0 auto", padding: 16, background: "#f8fafc", minHeight: "100vh" }}>
-
-      {/* ヘッダー */}
-      <div style={{ background: "linear-gradient(135deg,#1e293b 0%,#334155 100%)", borderRadius: 14, padding: "20px 24px", marginBottom: 18, color: "#fff" }}>
-        <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 4, letterSpacing: "0.1em" }}>DEPLOYMENT GUIDE</div>
-        <div style={{ fontSize: 22, fontWeight: "bold", marginBottom: 4 }}>HTMLファイル → GitHub Pages 公開手順</div>
-        <div style={{ fontSize: 12, opacity: 0.75 }}>よくあるつまずきポイント・Q&A付き</div>
-        <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {[{ label: "全7ステップ", icon: "📋" }, { label: "無料で公開可能", icon: "💰" }, { label: "Q&A付き", icon: "💬" }].map(b => (
-            <span key={b.label} style={{ background: "rgba(255,255,255,0.12)", borderRadius: 20, padding: "4px 12px", fontSize: 11 }}>{b.icon} {b.label}</span>
-          ))}
-        </div>
+    <div>
+      {/* フィルター（折り返し対応） */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+        {["すべて", ...phaseList].map(p => (
+          <button key={p} onClick={() => { setFilter(p); setActiveStep(null); }} style={{
+            padding: "6px 14px", borderRadius: 20, border: "2px solid",
+            borderColor: filter === p ? (phaseColors[p] || "#1e293b") : "#e2e8f0",
+            background: filter === p ? (phaseColors[p] || "#1e293b") : "#fff",
+            color: filter === p ? "#fff" : "#64748b",
+            fontSize: 12, cursor: "pointer",
+            fontWeight: filter === p ? "bold" : "normal",
+            transition: "all 0.15s", fontFamily: "inherit"
+          }}>{p}</button>
+        ))}
       </div>
 
-      {/* フィルター */}
-      <div style={{ overflowX: "auto", paddingBottom: 6, marginBottom: 14 }}>
-        <div style={{ display: "flex", gap: 6, minWidth: "max-content" }}>
-          {["すべて", ...phaseList].map(p => (
-            <button key={p} onClick={() => setFilter(p)} style={{
-              padding: "6px 14px", borderRadius: 20, border: "2px solid",
-              borderColor: filter === p ? (phaseColors[p] || "#1e293b") : "#e2e8f0",
-              background: filter === p ? (phaseColors[p] || "#1e293b") : "#fff",
-              color: filter === p ? "#fff" : "#64748b",
-              fontSize: 12, cursor: "pointer", whiteSpace: "nowrap",
-              fontWeight: filter === p ? "bold" : "normal",
-              transition: "all 0.15s", fontFamily: "inherit"
-            }}>{p}</button>
-          ))}
-        </div>
-      </div>
-
-      {/* ステップ一覧 */}
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
         {filtered.map(step => {
           const isActive = activeStep === step.id;
@@ -210,7 +250,6 @@ function App() {
                       ))}
                     </div>
                   </div>
-
                   {step.warns.length > 0 && (
                     <div style={{ background: "#fefce8", border: "1px solid #fde047", borderRadius: 8, padding: "10px 14px", marginBottom: step.qa.length ? 12 : 0 }}>
                       <div style={{ fontSize: 11, fontWeight: "bold", color: "#854d0e", marginBottom: 6 }}>⚠️ つまずきやすいポイント</div>
@@ -219,7 +258,6 @@ function App() {
                       ))}
                     </div>
                   )}
-
                   {step.qa.length > 0 && (
                     <div>
                       <div style={{ fontSize: 11, fontWeight: "bold", color: "#64748b", marginBottom: 8 }}>💬 このステップでよくある質問</div>
@@ -249,6 +287,67 @@ function App() {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+function App() {
+  const [mainTab, setMainTab] = useState("publish");
+  const isPublish = mainTab === "publish";
+
+  return (
+    <div style={{ fontFamily: "'Hiragino Sans','Yu Gothic','Meiryo',sans-serif", width: "100%", minHeight: "100vh", padding: 16, background: "#f8fafc" }}>
+
+      {/* メインタブ */}
+      <div style={{ display: "flex", gap: 4, marginBottom: 0 }}>
+        {[
+          { key: "publish", label: "🚀 初回公開", activeColor: "#1e293b" },
+          { key: "update", label: "🔄 ページを更新する", activeColor: "#0369a1" },
+        ].map(tab => (
+          <button key={tab.key} onClick={() => setMainTab(tab.key)} style={{
+            padding: "10px 22px", border: "2px solid",
+            borderColor: mainTab === tab.key ? tab.activeColor : "#e2e8f0",
+            borderBottom: mainTab === tab.key ? "none" : "2px solid #e2e8f0",
+            cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: "bold",
+            borderRadius: "10px 10px 0 0",
+            background: mainTab === tab.key ? tab.activeColor : "#e2e8f0",
+            color: mainTab === tab.key ? "#fff" : "#64748b",
+            transition: "all 0.15s",
+            position: "relative", zIndex: mainTab === tab.key ? 2 : 1,
+            marginBottom: mainTab === tab.key ? "-2px" : 0,
+          }}>{tab.label}</button>
+        ))}
+      </div>
+
+      {/* ヘッダー */}
+      <div style={{
+        background: isPublish
+          ? "linear-gradient(135deg,#1e293b 0%,#334155 100%)"
+          : "linear-gradient(135deg,#0369a1 0%,#0ea5e9 100%)",
+        borderRadius: isPublish ? "0 10px 10px 10px" : "0 10px 10px 10px",
+        padding: "20px 24px", marginBottom: 16, color: "#fff",
+        position: "relative", zIndex: 1,
+      }}>
+        <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 4, letterSpacing: "0.1em" }}>
+          {isPublish ? "DEPLOYMENT GUIDE" : "UPDATE GUIDE"}
+        </div>
+        <div style={{ fontSize: 22, fontWeight: "bold", marginBottom: 4 }}>
+          {isPublish ? "HTMLファイル → GitHub Pages 公開手順" : "ページの更新手順"}
+        </div>
+        <div style={{ fontSize: 12, opacity: 0.75 }}>
+          {isPublish ? "よくあるつまずきポイント・Q&A付き" : "公開済みのページを最新版に更新する"}
+        </div>
+        <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {(isPublish
+            ? [{ label: "全7ステップ", icon: "📋" }, { label: "無料で公開可能", icon: "💰" }, { label: "Q&A付き", icon: "💬" }]
+            : [{ label: "全4ステップ", icon: "📋" }, { label: "Settings変更不要", icon: "⚡" }, { label: "Q&A付き", icon: "💬" }]
+          ).map(b => (
+            <span key={b.label} style={{ background: "rgba(255,255,255,0.12)", borderRadius: 20, padding: "4px 12px", fontSize: 11 }}>{b.icon} {b.label}</span>
+          ))}
+        </div>
+      </div>
+
+      <StepList steps={isPublish ? publishSteps : updateSteps} />
 
       {/* まとめ */}
       <div style={{ background: "linear-gradient(135deg,#0f172a,#1e293b)", borderRadius: 12, padding: "16px 20px", color: "#fff" }}>
