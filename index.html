@@ -1,25 +1,420 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HTMLファイル → GitHub Pages 公開手順</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub 手順書 + 用語辞典</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: 'var(--background)',
+            foreground: 'var(--foreground)',
+            card: 'var(--card)',
+            'card-foreground': 'var(--card-foreground)',
+            border: 'var(--border)',
+            input: 'var(--input)',
+            primary: 'var(--primary)',
+            'primary-foreground': 'var(--primary-foreground)',
+            muted: 'var(--muted)',
+            'muted-foreground': 'var(--muted-foreground)',
+          },
+        },
+      },
+    }
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body, #root { height: 100%; }
-    body { background: #f8fafc; font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+    :root {
+      --background: #ffffff;
+      --foreground: #0a0a0a;
+      --card: #ffffff;
+      --card-foreground: #0a0a0a;
+      --border: #e5e5e5;
+      --input: #e5e5e5;
+      --primary: #171717;
+      --primary-foreground: #fafafa;
+      --muted: #f5f5f5;
+      --muted-foreground: #737373;
+      --radius: 0.625rem;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border-color: var(--border);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      background-color: var(--background);
+      color: var(--foreground);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* スクロールエリア */
+    .scroll-area {
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #d4d4d4 transparent;
+    }
+    .scroll-area::-webkit-scrollbar {
+      width: 6px;
+    }
+    .scroll-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .scroll-area::-webkit-scrollbar-thumb {
+      background-color: #d4d4d4;
+      border-radius: 3px;
+    }
+
+    /* アコーディオン */
+    .accordion-content {
+      overflow: hidden;
+      transition: max-height 0.2s ease-out, opacity 0.2s ease-out;
+      max-height: 0;
+      opacity: 0;
+    }
+    .accordion-content.open {
+      max-height: 2000px;
+      opacity: 1;
+    }
+
+    .accordion-trigger svg.chevron {
+      transition: transform 0.2s ease;
+    }
+    .accordion-trigger.open svg.chevron {
+      transform: rotate(180deg);
+    }
+
+    /* カード */
+    .card {
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    /* インプット */
+    .input {
+      width: 100%;
+      padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) - 2px);
+      background-color: var(--background);
+      color: var(--foreground);
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .input:focus {
+      border-color: #a3a3a3;
+      box-shadow: 0 0 0 2px rgba(163,163,163,0.3);
+    }
+    .input::placeholder {
+      color: var(--muted-foreground);
+    }
+
+    /* 用語ボタン */
+    .term-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-thickness: 1px;
+      text-decoration-color: var(--muted-foreground);
+      color: var(--muted-foreground);
+      transition: color 0.15s, text-decoration-color 0.15s;
+      padding: 0;
+      line-height: 1.5;
+    }
+    .term-btn:hover {
+      color: var(--foreground);
+      text-decoration-color: var(--foreground);
+    }
+    .term-btn.active {
+      font-weight: 600;
+      color: var(--foreground);
+      text-decoration-color: var(--foreground);
+    }
+
+    /* アコーディオントリガー */
+    .accordion-trigger {
+      width: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0.5rem;
+      color: var(--foreground);
+      font-size: 0.875rem;
+      transition: background-color 0.1s;
+      border-radius: calc(var(--radius) - 4px);
+    }
+    .accordion-trigger:hover {
+      background-color: var(--muted);
+    }
+
+    /* パンくずボタン */
+    .breadcrumb-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted-foreground);
+      font-size: 0.875rem;
+      padding: 0;
+      transition: color 0.15s;
+    }
+    .breadcrumb-btn:hover {
+      color: var(--foreground);
+      text-decoration: underline;
+    }
+
     @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
     ::-webkit-scrollbar { height: 4px; width: 4px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    .tab-label { font-size: 12px; overflow: hidden; text-overflow: ellipsis; min-width: 0; transition: all 0.2s; }
+    @container tabs (max-width: 600px) { .tab-label { display: none; } }
+    .tabs-container { container-type: inline-size; container-name: tabs; }
+
+    /* メインエリア */
+    @media (max-width: 640px) {
+      aside {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        border-right: none !important;
+        border-bottom: 1px solid var(--border);
+      }
+      main {
+        margin-left: 0 !important;
+      }
+    }
   </style>
 </head>
-<body>
-<div id="root"></div>
-<script type="text/babel">
+<body class="min-h-screen" style="background-color: var(--background);">
+
+  <!-- 固定サイドバー -->
+  <aside style="position:fixed;left:0;top:0;height:100vh;width:320px;border-right:1px solid var(--border);background-color:var(--card);display:flex;flex-direction:column;z-index:10;">
+
+    <!-- ヘッダー -->
+    <div style="padding:1rem;border-bottom:1px solid var(--border);">
+      <h1 style="font-size:1.125rem;font-weight:700;display:flex;align-items:center;gap:0.5rem;color:var(--foreground);">
+        単語検索
+      </h1>
+    </div>
+
+    <!-- 検索ボックス -->
+    <div style="padding:1rem;">
+      <div style="position:relative;">
+        <svg style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input id="searchInput" class="input" type="text" placeholder="検索..." />
+      </div>
+    </div>
+
+    <!-- パンくずリスト -->
+    <div style="padding:0 1rem 0.75rem;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:0.25rem;font-size:0.875rem;color:var(--muted-foreground);">
+        <button class="breadcrumb-btn" onclick="clearSelection()">検索</button>
+        <span id="breadcrumbArrow" style="display:none;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </span>
+        <span id="breadcrumbTerm" style="color:var(--foreground);"></span>
+      </div>
+    </div>
+
+    <!-- 用語リスト＆意味表示 -->
+    <div class="scroll-area" style="flex:1;padding:0.5rem;">
+
+      <!-- 用語一覧アコーディオン -->
+      <div>
+        <button class="accordion-trigger open" id="termsToggle" onclick="toggleAccordion('termsContent', this)">
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted-foreground);">
+              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+            <span style="font-weight:500;">用語一覧</span>
+          </div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </button>
+        <div class="accordion-content open" id="termsContent">
+          <div id="termsList" style="display:flex;flex-wrap:wrap;gap:0.5rem 0.75rem;padding:0 0.5rem 0.5rem;"></div>
+        </div>
+      </div>
+
+      <!-- 意味表示アコーディオン（選択時のみ表示） -->
+      <div id="meaningSection" style="display:none;margin-top:0.25rem;">
+        <button class="accordion-trigger open" id="meaningToggle" onclick="toggleAccordion('meaningContent', this)">
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted-foreground);">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            <span style="font-weight:500;">意味</span>
+          </div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </button>
+        <div class="accordion-content open" id="meaningContent">
+          <div style="padding:0 0.5rem 0.5rem;">
+            <div class="card" style="padding:1rem;box-shadow:0 1px 3px rgba(0,0,0,0.07);">
+              <h3 id="meaningTitle" style="font-size:1rem;font-weight:600;margin-bottom:0.75rem;color:var(--foreground);"></h3>
+              <div style="display:flex;flex-direction:column;gap:0.75rem;font-size:0.875rem;">
+                <div>
+                  <div style="display:flex;align-items:center;gap:0.25rem;color:#2563eb;font-weight:500;margin-bottom:0.25rem;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                    意味
+                  </div>
+                  <p id="meaningText" style="color:var(--muted-foreground);padding-left:1rem;"></p>
+                </div>
+                <div>
+                  <div style="display:flex;align-items:center;gap:0.25rem;color:#2563eb;font-weight:500;margin-bottom:0.25rem;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    画面位置
+                  </div>
+                  <p id="meaningLocation" style="color:var(--muted-foreground);padding-left:1rem;"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- メインコンテンツエリア -->
+  <main style="margin-left:320px;min-height:100vh;padding:2rem;">
+    <div id="root"></div>
+  </main>
+
+  <script>
+    // 用語データ
+    const terms = [
+      { id: 1,  name: "Codeタブ",              meaning: "ファイル一覧・アップロード・履歴確認をする場所です。",                                          location: "ホーム画面 ▶ 画面上部 Code",                          category: "tab" },
+      { id: 2,  name: "Settingsタブ",           meaning: "リポジトリの設定を変更する場所です。GitHub Pagesの設定もここで行います。",                       location: "ホーム画面 ▶ 画面上部 Settings",                      category: "tab" },
+      { id: 3,  name: "Pagesメニュー",           meaning: "GitHub Pagesの設定画面です。サイトの公開設定ができます。",                                      location: "Settings ▶ 左メニュー Pages",                         category: "menu" },
+      { id: 4,  name: "Deployments",            meaning: "デプロイ（公開）の履歴を確認できます。",                                                        location: "リポジトリ画面 ▶ 右サイドバー Deployments",            category: "feature" },
+      { id: 5,  name: "リポジトリ名",            meaning: "プロジェクトの保存場所の名前です。URLの一部になります。",                                        location: "新規作成画面 ▶ Repository name",                      category: "basic" },
+      { id: 6,  name: "リポジトリ",              meaning: "ファイルを保存・管理するフォルダのようなものです。",                                             location: "GitHub全体で使用",                                    category: "basic" },
+      { id: 7,  name: "Commit changes",         meaning: "変更を保存するボタンです。変更内容を確定させます。",                                             location: "ファイル編集画面 ▶ 右上 緑色ボタン",                   category: "action" },
+      { id: 8,  name: "コミット（Commit）",      meaning: "変更を保存する操作のことです。履歴として記録されます。",                                         location: "ファイル編集後に実行",                                 category: "basic" },
+      { id: 9,  name: "main ブランチ",           meaning: "メインの作業場所です。通常はここにファイルを保存します。",                                        location: "リポジトリ画面 ▶ ブランチ選択",                        category: "basic" },
+      { id: 10, name: "ブランチ",                meaning: "作業の分岐点です。異なるバージョンを並行して管理できます。",                                      location: "リポジトリ画面 ▶ main ▼ ボタン",                      category: "basic" },
+      { id: 11, name: "/(root)",                meaning: "リポジトリの一番上のフォルダ（ルート）を指します。",                                             location: "Pages設定 ▶ フォルダ選択",                            category: "path" },
+      { id: 12, name: "main ブランチの /(root)", meaning: "mainブランチの一番上のフォルダからサイトを公開する設定です。",                                   location: "Pages ▶ Branch設定",                                  category: "path" },
+      { id: 13, name: "Build and deployment",   meaning: "サイトの構築と公開の設定セクションです。",                                                       location: "Settings ▶ Pages ▶ Build and deployment",             category: "feature" },
+      { id: 14, name: "Source",                 meaning: "サイトのソース（元ファイル）の場所を指定します。",                                               location: "Pages ▶ Build and deployment ▶ Source",              category: "feature" },
+      { id: 15, name: "Add file",               meaning: "新しいファイルを追加するボタンです。",                                                           location: "Code画面 ▶ Add file ▼",                              category: "action" },
+      { id: 16, name: "Create new file",        meaning: "新しいファイルを作成します。",                                                                   location: "Add file ▶ Create new file",                          category: "action" },
+      { id: 17, name: "Upload files",           meaning: "パソコンからファイルをアップロードします。",                                                     location: "Add file ▶ Upload files",                             category: "action" },
+    ];
+
+    const categories = {
+      tab: "タブ", menu: "メニュー", feature: "機能",
+      basic: "基本用語", action: "アクション", path: "パス",
+    };
+
+    let selectedTerm = null;
+    let searchQuery = "";
+
+    // 用語リストを描画
+    function renderTerms() {
+      const list = document.getElementById("termsList");
+      const filtered = searchQuery
+        ? terms.filter(t =>
+            t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            t.meaning.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : terms;
+
+      list.innerHTML = filtered.map(term => `
+        <button
+          class="term-btn ${selectedTerm && selectedTerm.id === term.id ? 'active' : ''}"
+          onclick="selectTerm(${term.id})"
+        >${escapeHtml(term.name)}</button>
+      `).join("");
+    }
+
+    // 用語を選択
+    function selectTerm(id) {
+      selectedTerm = terms.find(t => t.id === id);
+      if (!selectedTerm) return;
+
+      // パンくず更新
+      document.getElementById("breadcrumbArrow").style.display = "inline-flex";
+      document.getElementById("breadcrumbTerm").textContent =
+        categories[selectedTerm.category] + "：" + selectedTerm.name;
+
+      // 意味カード更新
+      document.getElementById("meaningTitle").textContent = selectedTerm.name;
+      document.getElementById("meaningText").textContent = selectedTerm.meaning;
+      document.getElementById("meaningLocation").textContent = selectedTerm.location;
+
+      // 意味セクション表示
+      const section = document.getElementById("meaningSection");
+      section.style.display = "block";
+
+      // 意味アコーディオンを開く
+      const content = document.getElementById("meaningContent");
+      const toggle = document.getElementById("meaningToggle");
+      content.classList.add("open");
+      toggle.classList.add("open");
+
+      renderTerms();
+    }
+
+    // 選択クリア
+    function clearSelection() {
+      selectedTerm = null;
+      document.getElementById("breadcrumbArrow").style.display = "none";
+      document.getElementById("breadcrumbTerm").textContent = "";
+      document.getElementById("meaningSection").style.display = "none";
+      renderTerms();
+    }
+
+    // アコーディオン開閉
+    function toggleAccordion(contentId, triggerEl) {
+      const content = document.getElementById(contentId);
+      content.classList.toggle("open");
+      triggerEl.classList.toggle("open");
+    }
+
+    // HTML エスケープ
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // 検索
+    document.getElementById("searchInput").addEventListener("input", function() {
+      searchQuery = this.value;
+      renderTerms();
+    });
+
+    // 初期描画
+    renderTerms();
+  </script>
+
+  <script type="text/babel">
 const { useState } = React;
 
 const publishSteps = [
@@ -59,41 +454,23 @@ const publishSteps = [
     desc: "ページごとにフォルダを作る（フォルダ名がURLになる）",
     details: [
       "【Codeタブ】上部タブの一番左「Code」をクリックしてリポジトリのトップを開く",
-      "【Add fileボタン】画面中央上あたりにある緑の「Add file」ボタンをクリック → プルダウンで「Create new file」を選択",
-      "【ファイル名テキストボックス】画面上部の入力欄に「elementor/index.html」と入力する（「/」を入力した瞬間にフォルダが自動作成される）",
-      "【内容欄】画面中央の大きいテキストエリアに「準備中」と1文字だけ入力（仮のファイルとして保存するため）",
-      "【Commit changesボタン】画面右上の緑「Commit changes...」→ポップアップで「Commit directly to the main branch」を確認して「Commit changes」をクリック",
-    ],
-    warns: [
-      "フォルダ名は英数字・ハイフンのみ推奨（日本語・スペース不可）",
-      "フォルダ名がそのままURLになる（例：elementor → .../elementor/）",
-      "2枚目以降も同じ手順でフォルダを追加するだけでOK",
-    ],
-    qa: [
-      { q: "フォルダ名はどうやって決める？", a: "ページの内容を英語で短く表したものが理想です。例：Elementorガイド→「elementor」、GitHubガイド→「github-guide」、WordPressガイド→「wp-guide」など。「複数ページの考え方」タブも参考にしてください。" },
-    ],
-  },
-  {
-    id: 5, phase: "ファイルアップロード", phaseColor: "#0ea5e9", phaseBg: "#f0f9ff",
-    title: "フォルダにHTMLファイルをアップロード", icon: "⬆️",
-    desc: "作成したフォルダの中にHTMLファイルを入れる",
-    details: [
-      "【Codeタブ】ファイル一覧から先ほど作ったフォルダ名（例：「elementor」）をクリックして中に入る",
-      "【Add fileボタン】緑の「Add file」→プルダウンで「Upload files」を選択",
+      "【ファイルアップロード】空リポジトリの場合は画面中央の青いエリア「uploading an existing file」（青いリンク文字）をクリック。※すでにファイルがある場合は緑の「Add file」→「Upload files」を選択",
+      "できれば最初からファイル名を「index.html」にしておく（あとからリネームする手間が減る）",
       "HTMLファイルをドラッグ＆ドロップ（または「choose your files」をクリックして選択）",
+      "※ index.html 以外の名前でアップロードした場合は、後で GitHub 上で「index.html」にリネームが必要",
       "【Commit changesボタン】画面一番下の緑の「Commit changes」ボタンをクリック",
-      "【ファイル名確認】アップロード後、ファイル名が「index.html」以外の場合は次の手順でリネームする",
     ],
     warns: [
-      "必ずフォルダの中に入ってからアップロードすること（リポジトリのトップからアップロードするとフォルダの外に置かれてしまう）",
+      "フォルダの中にアップロードしないよう注意。必ずリポジトリのトップ画面（WP-ElementorUPDdate /）からアップロードすること",
+      "最初から「index.html」でアップロードできていないと、公開URLを開いたときに404（ページが見つからない）になりやすい",
     ],
     qa: [
-      { q: "ファイル名をindex.htmlに変えるには？", a: "アップロード後、ファイルをクリック→右上の鉛筆アイコン→ファイル名テキストボックスを「index.html」に書き換え→「Commit changes...」→「Commit changes」でOKです。" },
-      { q: "Commit changesのポップアップに何を入力すればいい？", a: "「Commit message」欄は自動入力されているので変更不要。「Commit directly to the main branch」が選択されていることだけ確認して緑の「Commit changes」を押せばOKです。" },
+      { q: "Commit changesのポップアップに何を入力すればいい？", a: "「Commit message」欄は自動入力されているので変更不要です。もし変更点を後で追跡しやすくしたい場合は「誤字修正」「UI変更」など、変えた内容をひとことメモしておくと管理しやすいです。" },
+      { q: "Commit changesはどっちを選択すればいいの？", a: "基本は「Commit directly to the main branch.」でOKです（公開ページに反映されるのは基本的にmainのindex.html）。ただし、UIがガラッと変わる／機能を新しく追加するなど大きな変更のときは「Create a new branch for this commit and start a pull request.」を選ぶと安全です。ブランチに分けておけば、問題があったときに切り戻しやすくなります。" },
     ],
   },
   {
-    id: 6, phase: "GitHub Pages有効化", phaseColor: "#8b5cf6", phaseBg: "#f5f3ff",
+    id: 5, phase: "GitHub Pages有効化", phaseColor: "#8b5cf6", phaseBg: "#f5f3ff",
     title: "GitHub Pagesを有効にする", icon: "🌐",
     desc: "リポジトリの設定からPages機能をオンにする（初回のみ）",
     details: [
@@ -103,10 +480,14 @@ const publishSteps = [
       "【Saveボタン】「main」の右隣に出てくる「Save」ボタンをクリック",
       "✅ この時点で公開処理が開始されます（まだ反映まで1〜2分かかります）",
     ],
-    warns: [], qa: [],
+    warns: [],
+    qa: [
+      { q: "公開できているか、どこで確認できる？", a: "Settings → Pages の画面上部に「Visit site」ボタンが表示されていれば公開OKです（反映まで少し時間がかかることがあります）。" },
+      { q: "非公開に戻したい（公開を止めたい）", a: "同じ Pages 設定で、Branch を「None」に戻して Save すると Pages が無効になり、サイトは非公開になります。" },
+    ],
   },
   {
-    id: 7, phase: "公開確認", phaseColor: "#ec4899", phaseBg: "#fdf2f8",
+    id: 6, phase: "公開確認", phaseColor: "#ec4899", phaseBg: "#fdf2f8",
     title: "公開URLを確認・アクセス", icon: "🎉",
     desc: "サイトが公開されたことを確認する（ここで公開完了）",
     details: [
@@ -145,6 +526,9 @@ const updateSteps = [
     warns: [],
     qa: [
       { q: "古いファイルを削除する必要はある？", a: "不要です！同じ名前（index.html）でアップロードすると自動で上書きされます。" },
+      { q: "上書き（mainに直接）と、ブランチ作成のどちらを選べばいい？", a: "目安は「変更の大きさ」です。誤字修正・画像差し替え・文章追加などの軽い変更なら、mainのindex.htmlに上書きでOKです。一方で、UIがガラッと変わる／機能を新しく追加する／公開している人全員に影響が大きい変更は、ブランチを作って（必要ならPull Requestでレビューして）からmainへ反映すると安全です。" },
+      { q: "上書きで更新したけど、前のバージョンに戻したい", a: "GitHubは更新のたびに履歴（Commit）を自動で残します。Codeタブで index.html を開き、右上の History から戻したい時点の内容を確認できます。戻すときは、過去の内容をコピーして新しい index.html として再アップロード（上書き）すると戻せます。Commit messageに変更内容を書いておくと、どれがどの変更か見分けやすいです。" },
+      { q: "ブランチを作った場合、どうやって切り替える？", a: "基本は「ブランチで変更 → Pull Request → mainにマージ」です。公開ページは通常 main を見ているため、mainへマージした時点で反映されます。もし不具合が出たら、Pull Requestを戻す（revert）などで切り戻しがしやすいのがブランチ運用のメリットです。" },
     ],
   },
   {
@@ -518,6 +902,211 @@ function MultiPageGuide() {
   );
 }
 
+function IntroGuide({ setMainTab }) {
+  const [openItem, setOpenItem] = useState("tablist");
+  const toggle = (key) => setOpenItem(prev => prev === key ? null : key);
+
+  const tabGuide = [
+    { key: "publish",   icon: "🚀", label: "初回公開",           color: "#1e293b", bg: "#f1f5f9", desc: "GitHubにHTMLファイルをアップロードして、はじめてWebに公開するまでの手順。リポジトリ作成・フォルダ作成・Pages有効化まで全6ステップ。" },
+    { key: "update",    icon: "🔄", label: "ページを更新する",    color: "#0369a1", bg: "#f0f9ff", desc: "すでに公開済みのページを新しいHTMLに差し替える手順。Settingsの変更は不要で、アップロードするだけで自動反映される。" },
+    { key: "multipage", icon: "📄", label: "複数ページの考え方",  color: "#0891b2", bg: "#ecfeff", desc: "2枚目以降のページを追加するときの考え方。フォルダ名の決め方・URL構成・Teamsへの登録方法まで解説。" },
+    { key: "version",   icon: "🕓", label: "バージョン確認",      color: "#6366f1", bg: "#eef2ff", desc: "GitHubは更新するたびに履歴を自動保存。過去のバージョンの確認方法・元に戻す方法・Commit messageの活用法を解説。" },
+  ];
+
+  const accountSteps = [
+    "https://github.com をブラウザで開く",
+    "右上の「Sign up」ボタンをクリック",
+    "メールアドレスを入力 →「Continue」",
+    "パスワードを設定 →「Continue」",
+    "ユーザー名を入力（英数字・ハイフンのみ）→「Continue」",
+    "「y」か「n」で製品情報メールの受信を選択 →「Continue」",
+    "画面に表示されるパズル（ロボット認証）をクリアする",
+    "登録したメールアドレスに届いた確認コード（8桁）を入力",
+    "「How many team members…」などのアンケートは自由に選択 →「Continue」",
+    "プラン選択画面で「Continue for free」をクリック → 登録完了 🎉",
+  ];
+
+  const screenGuide = [
+    { label: "Codeタブ", icon: "📁", desc: "リポジトリのトップ。ファイル一覧・アップロード・フォルダ作成はここから行う。一番よく使うタブ。" },
+    { label: "Issuesタブ", icon: "💬", desc: "バグ報告や作業メモを残す場所。マニュアル用途では基本使わない。" },
+    { label: "Settingsタブ", icon: "⚙️", desc: "リポジトリの設定。GitHub Pagesの有効化はここの「Pages」メニューから行う。初回のみ使う。" },
+    { label: "Deploymentsエリア", icon: "🚀", desc: "Codeタブの右側に表示される。公開状態の確認・「View deployment」で実際のページを開ける。" },
+    { label: "Add fileボタン", icon: "＋", desc: "Codeタブ上部にある緑のボタン。「Upload files」でアップロード、「Create new file」でフォルダ作成に使う。" },
+    { label: "Commit changes", icon: "✅", desc: "ファイルの保存・確定ボタン。GitHubでは「保存＝Commit」という。押すまで変更は反映されない。" },
+  ];
+
+  return (
+    <div>
+      {/* このガイドでできること */}
+      <div style={{ background: "#fff", border: "2px solid #e2e8f0", borderRadius: 12, padding: 20, marginBottom: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: "bold", color: "#1e293b", marginBottom: 12 }}>📌 このガイドでできること</div>
+        <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.8, marginBottom: 16 }}>
+          ClaudeなどのAIが作成したHTMLファイルを、<strong>GitHub Pages</strong>を使って無料でWebに公開し、<strong>Microsoft Teamsのタブ</strong>として社内に共有できるようになります。
+          サーバー契約・プログラミング知識は不要です。
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8 }}>
+          {[
+            { icon: "💰", text: "無料で公開できる" },
+            { icon: "🖥️", text: "サーバー不要" },
+            { icon: "📝", text: "コード知識不要" },
+            { icon: "🔄", text: "何度でも更新できる" },
+            { icon: "📄", text: "複数ページ管理できる" },
+            { icon: "🕓", text: "バージョン履歴が残る" },
+          ].map(item => (
+            <div key={item.text} style={{ background: "#f8fafc", borderRadius: 8, padding: "8px 12px", fontSize: 12, color: "#374151", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 16 }}>{item.icon}</span>{item.text}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 各タブの説明（目次） - アコーディオン */}
+      <div style={{ background: "#fff", border: "2px solid #e2e8f0", borderRadius: 12, padding: 20, marginBottom: 12 }}>
+        <button
+          type="button"
+          onClick={() => toggle("tablist")}
+          style={{
+            width: "100%",
+            background: "none",
+            border: "none",
+            padding: 0,
+            margin: 0,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: openItem === "tablist" ? 12 : 4,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 16 }}>🗂️</span>
+            <span style={{ fontSize: 13, fontWeight: "bold", color: "#1e293b" }}>このガイドのタブ一覧</span>
+          </div>
+          <span style={{ fontSize: 14, color: "#94a3b8", transform: openItem === "tablist" ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>▶</span>
+        </button>
+        {openItem === "tablist" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {tabGuide.map(t => (
+              <div
+                key={t.key}
+                style={{
+                  background: t.bg,
+                  borderRadius: 10,
+                  border: "2px solid " + t.color + "33",
+                  padding: "12px 14px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      background: t.color,
+                      color: "#fff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 15,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {t.icon}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: "bold", color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {t.label}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setMainTab(t.key)}
+                    style={{
+                      background: t.color,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 999,
+                      padding: "6px 12px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      fontSize: 11,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    このタブを開く →
+                  </button>
+                </div>
+                <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.7 }}>{t.desc}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* アカウント作成 */}
+      <div>
+        <div onClick={() => toggle("account")} style={{ background: "#fff", borderRadius: 12, border: "2px solid " + (openItem === "account" ? "#0ea5e9" : "#e2e8f0"), padding: "12px 16px", cursor: "pointer", transition: "all 0.15s", marginBottom: openItem === "account" ? 0 : 8, boxShadow: openItem === "account" ? "0 0 0 3px #0ea5e922" : "none" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", flexShrink: 0, background: openItem === "account" ? "#0ea5e9" : "#f0f9ff", color: openItem === "account" ? "#fff" : "#0ea5e9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🔑</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: "bold", color: "#1e293b" }}>GitHubアカウントの作り方</div>
+              <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>github.comに無料登録する手順（全10ステップ）</div>
+            </div>
+            <div style={{ color: "#94a3b8", fontSize: 16, transform: openItem === "account" ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>▶</div>
+          </div>
+        </div>
+        {openItem === "account" && (
+          <div style={{ background: "#f0f9ff", border: "2px solid #0ea5e9", borderTop: "none", borderRadius: "0 0 12px 12px", padding: 16, marginBottom: 8, animation: "fadeIn 0.2s ease" }}>
+            <div style={{ fontSize: 11, fontWeight: "bold", color: "#64748b", marginBottom: 8 }}>📋 手順</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {accountSteps.map((s, i) => (
+                <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                  <div style={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, background: "#0ea5e9", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: "bold", marginTop: 1 }}>{i + 1}</div>
+                  <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.6, paddingTop: 2 }}>{s}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 12, background: "#fefce8", border: "1px solid #fde047", borderRadius: 8, padding: "10px 14px" }}>
+              <div style={{ fontSize: 11, fontWeight: "bold", color: "#854d0e", marginBottom: 4 }}>⚠️ ユーザー名の注意</div>
+              <div style={{ fontSize: 12, color: "#713f12" }}>ユーザー名はURLに使われます（例：ponmaina.github.io）。あとから変更可能ですが、URLも変わるので慎重に決めましょう。</div>
+            </div>
+          </div>
+        )}
+
+        {/* GitHub画面説明 */}
+        <div onClick={() => toggle("screen")} style={{ background: "#fff", borderRadius: 12, border: "2px solid " + (openItem === "screen" ? "#8b5cf6" : "#e2e8f0"), padding: "12px 16px", cursor: "pointer", transition: "all 0.15s", marginBottom: openItem === "screen" ? 0 : 8, boxShadow: openItem === "screen" ? "0 0 0 3px #8b5cf622" : "none" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", flexShrink: 0, background: openItem === "screen" ? "#8b5cf6" : "#f5f3ff", color: openItem === "screen" ? "#fff" : "#8b5cf6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🖥️</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: "bold", color: "#1e293b" }}>GitHubの画面説明</div>
+              <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>各タブ・ボタンの意味と使いどころ</div>
+            </div>
+            <div style={{ color: "#94a3b8", fontSize: 16, transform: openItem === "screen" ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>▶</div>
+          </div>
+        </div>
+        {openItem === "screen" && (
+          <div style={{ background: "#f5f3ff", border: "2px solid #8b5cf6", borderTop: "none", borderRadius: "0 0 12px 12px", padding: 16, marginBottom: 8, animation: "fadeIn 0.2s ease" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {screenGuide.map((s, i) => (
+                <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "#fff", borderRadius: 8, padding: "10px 12px", border: "1px solid #e2e8f0" }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", flexShrink: 0, background: "#8b5cf6", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: "bold" }}>{s.icon}</div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: "bold", color: "#1e293b", marginBottom: 2 }}>{s.label}</div>
+                    <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.6 }}>{s.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [mainTab, setMainTab] = useState("publish");
 
@@ -533,7 +1122,7 @@ function App() {
       bg: "linear-gradient(135deg,#1e293b 0%,#334155 100%)",
       label: "DEPLOYMENT GUIDE", title: "HTMLファイル → GitHub Pages 公開手順",
       sub: "よくあるつまずきポイント・Q&A付き",
-      badges: [{ label: "全7ステップ", icon: "📋" }, { label: "無料で公開可能", icon: "💰" }, { label: "Q&A付き", icon: "💬" }],
+      badges: [{ label: "全6ステップ", icon: "📋" }, { label: "無料で公開可能", icon: "💰" }, { label: "Q&A付き", icon: "💬" }],
     },
     update: {
       bg: "linear-gradient(135deg,#0369a1 0%,#0ea5e9 100%)",
