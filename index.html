@@ -449,9 +449,9 @@ const publishSteps = [
     ],
   },
   {
-    id: 4, phase: "ファイルアップロード", phaseColor: "#10b981", phaseBg: "#f0fdf4",
-    title: "HTMLファイルをアップロード", icon: "⬆️",
-    desc: "リポジトリのトップ（ルート）に直接HTMLファイルを置く",
+    id: 4, phase: "フォルダ作成", phaseColor: "#10b981", phaseBg: "#f0fdf4",
+    title: "ページ用のフォルダを作成", icon: "📂",
+    desc: "ページごとにフォルダを作る（フォルダ名がURLになる）",
     details: [
       "【Codeタブ】上部タブの一番左「Code」をクリックしてリポジトリのトップを開く",
       "【ファイルアップロード】空リポジトリの場合は画面中央の青いエリア「uploading an existing file」（青いリンク文字）をクリック。※すでにファイルがある場合は緑の「Add file」→「Upload files」を選択",
@@ -495,11 +495,11 @@ const publishSteps = [
       "【Settingsタブ → Pages】緑色の帯で「Your site is live at https://〇〇.github.io/〇〇/」と表示されたら公開完了 🎉",
       "または【Codeタブ】右側の「Deployments」→「github-pages」→ 緑の✅マークがついていれば公開済み → 「View deployment」ボタンで実際のページを確認",
       "URLの形式：https://【ユーザー名】.github.io/【リポジトリ名】/",
-      "例：https://ponmaina.github.io/WP-ElementorUPDdate/",
+      "例：https://ponmaina.github.io/wp-manual/",
     ],
     warns: ["反映まで2〜3分かかる場合があります。緑の帯や✅が出るまで待ってください"],
     qa: [
-      { q: "Visit siteを押したら404になった", a: "index.htmlのリネームができていない可能性があります。Codeタブでファイル名を確認し、index.html以外であれば鉛筆アイコンからリネームしてください。" },
+      { q: "プレビューはどこで確認できる？", a: "リポジトリ右側の「Deployments」→「github-pages」→「View deployment」ボタンから確認できます。" },
       { q: "URLを開くとGitHubの編集画面になってしまう", a: "GitHub内のリンクをクリックすると編集画面に飛んでしまいます。①ブラウザのアドレスバーに直接URLを入力してEnter、または②リポジトリ右側「Deployments」→「github-pages」→「View deployment」ボタンをクリックすると正しく公開ページが開けます。" },
     ],
   },
@@ -543,10 +543,7 @@ const updateSteps = [
       "【ポップアップ】「Commit directly to the main branch」が選択されていることを確認して緑の「Commit changes」を押す",
     ],
     warns: ["最初からファイル名を「index.html」にしてダウンロードしておくとこの手順は不要"],
-    qa: [
-      { q: "なぜindex.htmlという名前にしないといけないの？", a: "GitHub PagesはURLにファイル名を指定しない場合（例：.../elementor/）、フォルダの中から「index.html」という名前のファイルだけを自動で探して表示します。これはGitHub Pages独自のルールではなく、インターネット全体の共通ルールです。index（インデックス）＝「入口・目次」という意味で、どのWebサーバーも最初にindex.htmlを探します。別の名前（例：guide.html）でも「.../elementor/guide.html」のようにURLにファイル名を含めればアクセスできますが、URLが長くなるためindex.htmlにしておくのが便利です。" },
-      { q: "2枚目以降のページのファイル名はどうすればいい？", a: "2枚目以降も同じく「index.html」にします。ファイル名は同じでも、フォルダが違えば別のページとして管理されます。例：elementor/index.html（ElementorガイドのURL）、github-guide/index.html（GitHubガイドのURL）。フォルダ名がURLになるので、フォルダ名だけを変えて中のファイルはすべてindex.htmlで統一するのがベストです。フォルダ名の決め方は「📄 複数ページの考え方」タブを参考にしてください。" },
-    ],
+    qa: [],
   },
   {
     id: 4, phase: "反映確認", phaseColor: "#ec4899", phaseBg: "#fdf2f8",
@@ -1111,23 +1108,16 @@ function IntroGuide({ setMainTab }) {
 }
 
 function App() {
-  const [mainTab, setMainTab] = useState("intro");
+  const [mainTab, setMainTab] = useState("publish");
 
   const tabs = [
-    { key: "intro",     label: "📖 はじめに",             activeColor: "#0f766e" },
-    { key: "publish",   label: "🚀 初回公開",             activeColor: "#1e293b" },
-    { key: "update",    label: "🔄 ページを更新する",      activeColor: "#0369a1" },
-    { key: "multipage", label: "📄 複数ページの考え方",    activeColor: "#0891b2" },
-    { key: "version",   label: "🕓 バージョン確認",        activeColor: "#6366f1" },
+    { key: "publish",   label: "🚀 初回公開",           activeColor: "#1e293b" },
+    { key: "update",    label: "🔄 ページを更新する",    activeColor: "#0369a1" },
+    { key: "multipage", label: "📄 複数ページの考え方",  activeColor: "#0891b2" },
+    { key: "version",   label: "🕓 バージョン確認",      activeColor: "#6366f1" },
   ];
 
   const headerConfig = {
-    intro: {
-      bg: "linear-gradient(135deg,#0f766e 0%,#14b8a6 100%)",
-      label: "GETTING STARTED", title: "GitHub Pages ガイド — はじめに",
-      sub: "このガイドでできること・GitHubアカウント作成・画面の見方",
-      badges: [{ label: "アカウント作成", icon: "🔑" }, { label: "画面説明", icon: "🖥️" }, { label: "タブ一覧", icon: "🗂️" }],
-    },
     publish: {
       bg: "linear-gradient(135deg,#1e293b 0%,#334155 100%)",
       label: "DEPLOYMENT GUIDE", title: "HTMLファイル → GitHub Pages 公開手順",
@@ -1159,34 +1149,22 @@ function App() {
   return (
     <div style={{ fontFamily: "'Hiragino Sans','Yu Gothic','Meiryo',sans-serif", width: "100%", minHeight: "100vh", padding: 16, background: "#f8fafc" }}>
 
-      {/* メインタブ - レスポンシブ（縮小時はアイコンのみ） */}
-      <div className="tabs-container" style={{ display: "flex", gap: 4, marginBottom: 0, overflow: "hidden" }}>
-        {tabs.map(tab => {
-          const isActive = mainTab === tab.key;
-          return (
-            <button key={tab.key} onClick={() => setMainTab(tab.key)} title={tab.label} style={{
-              padding: "10px 0", border: "2px solid",
-              borderColor: isActive ? tab.activeColor : "#e2e8f0",
-              borderBottom: isActive ? "none" : "2px solid #e2e8f0",
-              cursor: "pointer", fontFamily: "inherit", fontWeight: "bold",
-              borderRadius: "10px 10px 0 0",
-              background: isActive ? tab.activeColor : "#e2e8f0",
-              color: isActive ? "#fff" : "#64748b",
-              transition: "all 0.15s",
-              position: "relative", zIndex: isActive ? 2 : 1,
-              marginBottom: isActive ? "-2px" : 0,
-              flex: "1 1 0",
-              minWidth: 0,
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-            }}>
-              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, paddingLeft: 8, paddingRight: 8 }}>
-                <span style={{ fontSize: 15, flexShrink: 0 }}>{tab.label.match(/^(\S+)/)[1]}</span>
-                <span className="tab-label">{tab.label.replace(/^\S+\s*/, "")}</span>
-              </span>
-            </button>
-          );
-        })}
+      {/* メインタブ */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 0 }}>
+        {tabs.map(tab => (
+          <button key={tab.key} onClick={() => setMainTab(tab.key)} style={{
+            padding: "10px 22px", border: "2px solid",
+            borderColor: mainTab === tab.key ? tab.activeColor : "#e2e8f0",
+            borderBottom: mainTab === tab.key ? "none" : "2px solid #e2e8f0",
+            cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: "bold",
+            borderRadius: "10px 10px 0 0",
+            background: mainTab === tab.key ? tab.activeColor : "#e2e8f0",
+            color: mainTab === tab.key ? "#fff" : "#64748b",
+            transition: "all 0.15s",
+            position: "relative", zIndex: mainTab === tab.key ? 2 : 1,
+            marginBottom: mainTab === tab.key ? "-2px" : 0,
+          }}>{tab.label}</button>
+        ))}
       </div>
 
       {/* ヘッダー */}
@@ -1201,7 +1179,6 @@ function App() {
         </div>
       </div>
 
-      {mainTab === "intro"     && <IntroGuide setMainTab={setMainTab} />}
       {mainTab === "publish"   && <StepList steps={publishSteps} />}
       {mainTab === "update"    && <StepList steps={updateSteps} />}
       {mainTab === "multipage" && <MultiPageGuide />}
